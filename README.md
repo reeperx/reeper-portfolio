@@ -112,13 +112,15 @@ prose lives with its section.
    year. The grid shows four rows per page.
 3. **Services** — edit `services` with your actual offers and timelines.
 4. **Testimonials** — edit the `testimonials` array in
-   [`src/content/site.ts`](src/content/site.ts). The first entry is a sample and
-   the other two are clearly marked placeholders. Replace all three with real
-   quotes and portraits you have permission to use, or delete the
-   `<TestimonialSection />` line from `src/app/page.tsx`. Portraits live in
-   `public/testimonials/`; the current images are free Pravatar placeholders.
-   The carousel auto-advances, pauses on hover or keyboard focus, and stops
-   automatically when the visitor prefers reduced motion.
+   [`src/content/site.ts`](src/content/site.ts). All three entries are currently
+   sample slides, including their star ratings, and are marked `Sample` in the
+   carousel. Replace the quotes, portraits, names, and ratings with real client
+   material you have permission to use, or delete the `<TestimonialSection />`
+   line from `src/app/page.tsx`. Portraits live in `public/testimonials/`; the
+   current images are free Pravatar placeholders. The carousel auto-advances,
+   pauses on hover or keyboard focus, and stops automatically when the visitor
+   prefers reduced motion. The sample ratings are visual only: review structured
+   data is emitted only for non-placeholder entries, never for fabricated data.
 5. **Hero and about prose** — the headline and intro are in
    [`src/components/hero.tsx`](src/components/hero.tsx); the bio is in
    [`src/components/about.tsx`](src/components/about.tsx); the contact copy is
@@ -232,8 +234,9 @@ explicitly approved step.
 
 ## Before you launch
 
-- [ ] Replace the sample testimonial and both placeholder slides, and swap the
-      Pravatar portraits for real client photos (with permission)
+- [ ] Replace all sample testimonial slides and their made-up ratings, and swap
+      the Pravatar portraits for real client photos and verified ratings (with
+      permission)
 - [ ] Remove the testimonial section if there are no real quotes to show
 - [ ] Replace `hello@example.com` with an address you actually read
 - [ ] Verify a sending domain in Resend and replace `onboarding@resend.dev`

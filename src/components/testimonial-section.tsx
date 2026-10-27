@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import { ArrowLeft, ArrowRight, Pause, Play } from "@/components/icons";
+import { StarRating } from "@/components/star-rating";
 import { Button } from "@/components/ui/button";
 import { testimonials } from "@/content/site";
 import { cn } from "@/lib/utils";
@@ -203,6 +204,10 @@ export function TestimonialSection() {
                     <p className="mt-0.5 text-sm text-muted-foreground">
                       {testimonial.role}
                     </p>
+                    <StarRating
+                      rating={testimonial.rating}
+                      className="mt-2"
+                    />
                   </div>
                 </footer>
               </blockquote>

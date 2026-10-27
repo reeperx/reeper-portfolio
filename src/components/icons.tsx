@@ -106,6 +106,30 @@ export function Play({ className }: { className?: string }) {
   );
 }
 
+export function Star({
+  className,
+  filled = false,
+}: {
+  className?: string;
+  filled?: boolean;
+}) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill={filled ? "currentColor" : "none"}
+      focusable="false"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.5"
+      viewBox="0 0 24 24"
+    >
+      <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.4l6.1-.9L12 3Z" />
+    </svg>
+  );
+}
+
 export function Sun({ className }: { className?: string }) {
   return (
     <svg
