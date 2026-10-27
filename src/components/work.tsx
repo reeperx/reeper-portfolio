@@ -1,11 +1,8 @@
 import { SectionHeading } from "@/components/section-heading";
 import { WorkGrid } from "@/components/work-grid";
 import { publishedProjects, vercelProjectCount } from "@/content/projects";
-import { site } from "@/content/site";
 
 export function Work() {
-  const github = site.socials.find((social) => social.label === "GitHub");
-
   return (
     <section
       id="work"
@@ -21,7 +18,6 @@ export function Work() {
       <WorkGrid
         projects={publishedProjects}
         totalVercelProjects={vercelProjectCount}
-        githubHref={github?.href ?? site.url}
       />
     </section>
   );

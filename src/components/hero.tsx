@@ -4,10 +4,10 @@ export function Hero() {
   return (
     <section
       aria-labelledby="hero-title"
-      className="relative isolate flex min-h-[calc(100svh-4rem)] flex-col justify-between overflow-hidden bg-blue grain-bg pb-10 pt-10 text-paper lg:min-h-svh lg:pb-14 lg:pt-12"
+      className="relative isolate flex min-h-[calc(100svh-4rem)] flex-col justify-between overflow-hidden bg-primary grain-bg pb-10 pt-10 text-primary-foreground lg:min-h-svh lg:pb-14 lg:pt-12"
     >
       <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col justify-between px-6 lg:px-12">
-        <div className="fade flex items-center justify-between gap-6 text-sm text-paper/85">
+        <div className="fade flex items-center justify-between gap-6 text-sm text-primary-foreground/85">
           <p>{site.role}</p>
           <p className="text-right">{site.location}</p>
         </div>
@@ -21,9 +21,9 @@ export function Hero() {
           </h1>
         </div>
 
-        <div className="grid gap-8 border-t border-paper/25 pt-7 md:grid-cols-[1.5fr_1fr] md:items-end">
+        <div className="grid gap-8 border-t border-primary-foreground/25 pt-7 md:grid-cols-[1.5fr_1fr] md:items-end">
           <div>
-            <p className="mb-4 flex items-center gap-2 text-sm text-paper/85 lg:hidden">
+            <p className="mb-4 flex items-center gap-2 text-sm text-primary-foreground/85 lg:hidden">
               <span
                 aria-hidden="true"
                 className="size-2 rounded-full bg-[#8fe0b0]"
@@ -31,7 +31,7 @@ export function Hero() {
               {site.availability}
             </p>
             <p
-              className="fade max-w-[48ch] text-base leading-relaxed text-paper/85 sm:text-lg"
+              className="fade max-w-[48ch] text-base leading-relaxed text-primary-foreground/85 sm:text-lg"
               style={{ animationDelay: "160ms" }}
             >
               I’m {site.name}, an independent developer. I design and build fast,
@@ -46,13 +46,13 @@ export function Hero() {
           >
             <a
               href="#work"
-              className="bg-paper px-5 py-3 text-sm font-medium text-ink transition-colors hover:bg-ice"
+              className="rounded-full bg-paper px-5 py-3 text-sm font-medium text-ink transition-colors hover:bg-signal"
             >
               See selected work
             </a>
             <a
               href="#contact"
-              className="border border-paper/45 px-5 py-3 text-sm font-medium text-paper transition-colors hover:border-paper hover:bg-paper/10"
+              className="rounded-full border border-primary-foreground/45 px-5 py-3 text-sm font-medium text-primary-foreground transition-colors hover:border-primary-foreground hover:bg-primary-foreground/10"
             >
               Start a project
             </a>
