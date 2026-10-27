@@ -25,42 +25,6 @@ export const site = {
   ],
 } as const;
 
-export type Project = {
-  name: string;
-  summary: string;
-  tags: string[];
-  year: string;
-  // Replace every example.com URL with the real Vercel deployment.
-  href: string;
-};
-
-export const projects: Project[] = [
-  {
-    name: "Vendo",
-    summary:
-      "A production workspace for e-commerce photo teams. Brief, generate, review, and ship product imagery in one place, with a live queue and a review trail clients can follow.",
-    tags: ["Next.js", "TypeScript", "MongoDB", "AWS S3"],
-    year: "2026",
-    href: "https://vendo.example.com",
-  },
-  {
-    name: "Mathonsi",
-    summary:
-      "A calm, clear lead engine for families arranging a funeral. A sensitive flow matches families with the right service, captures details once, and gets a consultant on the phone quickly.",
-    tags: ["Next.js", "Drizzle", "Postgres", "Resend"],
-    year: "2025",
-    href: "https://mathonsi.example.com",
-  },
-  {
-    name: "Fieldnote",
-    summary:
-      "An offline-first field journal for landscape crews. Teams record site conditions, photos, and hours without signal; the office sees clean records the moment they are back online.",
-    tags: ["React", "IndexedDB", "Node.js"],
-    year: "2024",
-    href: "https://fieldnote.example.com",
-  },
-];
-
 export type Service = {
   title: string;
   timeline: string;
