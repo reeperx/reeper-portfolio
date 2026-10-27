@@ -884,3 +884,46 @@ Open questions / deferred:
 8. README documents the theme, shadcn workflow, e2e commands, and branch protection.
 9. GitNexus `detect_changes` reports the expected symbols and no unexpected high-risk impact.
 10. No deployment has been performed.
+
+## 14. Scope Addendum — Floating Top Button, Vibrant Sidebar, Sidebar Footer Redesign
+
+Added after the original plan was committed. The new scope continues on `feat/sidebar-footer-theme-polish` (branched from the plan commit) so the protected-`main` / PR / green-CI path is unchanged.
+
+### Revised decisions
+
+- **Floating back-to-top replaces the footer link.** Add a global `ScrollToTop` client component in `layout.tsx`: fixed bottom-right, 48px shadcn `Button`, appears after roughly 600px of scroll, hides at the top, uses a reduced-motion-aware `window.scrollTo`, and exposes `aria-label="Back to top"`. It is outside `<main>` and z-indexed above the header.
+- **Sidebar navigation gets icons and a stronger hover state.** Add Work, Services, About, and Contact icons in `icons.tsx`, render each in a rounded icon tile. Contact uses the signal accent; the other items use primary blue on hover.
+- **The sidebar footer becomes a “Studio” card.** It holds the availability status, the availability note, the local time, and the desktop theme toggle. The top-right sidebar toggle is removed so there is only one desktop theme control. A soft primary-blue orb and a top gradient rule add vibrance without changing the editorial layout.
+- **The page footer stops repeating the Studio card.** Remove the availability badge, location, local time, and back-to-top button from `site-footer.tsx`. The footer keeps the oversized wordmark, a unique tagline (“Websites and web apps, built end to end for small teams.”), the canonical GitHub/LinkedIn links, copyright, and the Next.js/shadcn/Tailwind colophon. This directly addresses the repeated text the user flagged.
+- **Semantic landmark fix.** Move `<main id="main">` from `layout.tsx` into `page.tsx` and `not-found.tsx`, leaving `SiteFooter` and `ScrollToTop` outside the main landmark. The skip link still targets `#main`.
+- **Mobile controls.** The mobile header keeps its theme toggle and text nav. The sidebar Studio card and icon nav are desktop-only. The floating top button is available on both.
+
+### Revised file set
+
+- `src/components/scroll-to-top.tsx` (new)
+- `src/components/site-sidebar.tsx`
+- `src/components/site-footer.tsx`
+- `src/components/icons.tsx`
+- `src/components/site-header.tsx` (remove the toggle from inside the nav landmark)
+- `src/app/layout.tsx`, `src/app/page.tsx`, `src/app/not-found.tsx`
+- `e2e/portfolio.spec.ts` and `playwright.config.ts` (new)
+- `.github/workflows/ci.yml`, `README.md`
+
+### Revised test expectations
+
+- Floating button is absent at the top, visible after scrolling, scrolls to the top under reduced motion, and disappears again.
+- Desktop sidebar has four icon links, a visible Studio card, and exactly one theme toggle.
+- Footer contains no availability, location, local-time, or back-to-top text; it has exactly two links (GitHub, LinkedIn).
+- GitHub, LinkedIn, and email remain exactly once each; the footer has no nav.
+- Footer social links keep legible hover text in both themes; the desktop test asserts the computed primary/primary-foreground colors.
+- No horizontal overflow at 320px.
+- axe passes in desktop-light, desktop-dark, mobile-light, and mobile-dark.
+
+### Follow-up refinements
+
+- The footer card is theme-aware rather than a fixed inverse surface: `bg-secondary` (ice blue) in light mode and the dark secondary surface in dark mode, with semantic borders, muted text, and a theme-aware ring. This addresses the card looking identical in both themes.
+- Footer social hover states explicitly set both `hover` and `dark:hover` to primary/primary-foreground, overriding shadcn's dark outline hover. Playwright asserts the computed hover colors on desktop.
+- The sidebar “Navigate” label is removed; the icon navigation stands alone.
+- The e2e suite adds a 320px no-horizontal-overflow assertion.
+
+No deployment is part of the addendum.

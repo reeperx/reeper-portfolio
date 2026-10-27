@@ -10,6 +10,9 @@ make yours.
 - Next.js 16 (App Router) with React 19
 - Tailwind CSS v4
 - TypeScript
+- shadcn/ui primitives (Radix UI) on semantic design tokens
+- next-themes for a system-first light/dark mode
+- Playwright + axe-core for browser and accessibility checks
 - Fonts: Bricolage Grotesque (display) and Instrument Sans (text), both via
   `next/font/google`
 
@@ -28,7 +31,13 @@ Useful checks:
 pnpm lint
 pnpm typecheck
 pnpm build
+pnpm exec playwright install chromium # first run only
+pnpm test:e2e
 ```
+
+`pnpm test:e2e` starts a production server on port 3100 from the latest build.
+Run `pnpm build` first if the build output is stale, and stop a dev server on
+port 3100 if you want the test to own the port.
 
 ## Make it yours
 
@@ -76,17 +85,78 @@ projects. Screenshots were captured from the production URLs with Playwright,
 not composed mockups. The index is static: no database or runtime Vercel API
 call is needed.
 
-### Colours and type
+### Design system and themes
 
-The design tokens are at the top of
-[`src/app/globals.css`](src/app/globals.css):
+The tokens in [`src/app/globals.css`](src/app/globals.css) are layered:
 
-- paper `#f3f1ea`, ink `#17140f`, blue `#2338e8`, signal `#ff5c2b`
-- display type: Bricolage Grotesque
-- text type: Instrument Sans
+- **Brand constants** in `@theme`: paper, ink, blue, ice, signal. These are fixed
+  reference colors.
+- **Semantic tokens** in `:root` and `.dark`: background, foreground, card,
+  secondary, muted, primary, border, link, on-brand.
+- **Component tokens** from shadcn/ui: radius, input, ring, etc.
 
-Change the token values to re-skin the whole site; keep the ink-on-paper and
-paper-on-blue contrast intact.
+Build with semantic utilities (`bg-background`, `text-foreground`, `bg-card`,
+`text-muted-foreground`, `bg-primary`, `text-primary-foreground`,
+`border-border`). Reserve fixed `bg-ink` / `text-paper` for deliberate inverse
+surfaces. The footer uses `bg-secondary`, so it is a light card in light mode
+and a dark card in dark mode.
+
+The theme is system-first on first visit and persists to localStorage after the
+first toggle. `ThemeToggle` lives in the desktop sidebar's Studio card and in
+the mobile header; both labels are hydration-safe. Change the semantic values
+in `:root` / `.dark` to re-skin the site without touching components.
+
+shadcn/ui components live in `src/components/ui` and are configured by
+[`components.json`](components.json). Add more with:
+
+```bash
+pnpm dlx shadcn@latest add <component>
+```
+
+App-specific components use the small `cn` helper in
+[`src/lib/utils.ts`](src/lib/utils.ts).
+
+Display type is Bricolage Grotesque; text type is Instrument Sans.
+
+### Navigation and page controls
+
+- The desktop sidebar has icon navigation and a Studio card with availability,
+  local time, and the theme toggle.
+- The mobile header keeps the compact nav and the theme toggle.
+- The footer is a theme-aware rounded card with the wordmark, a unique tagline,
+  the canonical GitHub/LinkedIn links, copyright, and the colophon. It
+  deliberately does not repeat the availability, location, or local-time copy
+  from the rest of the page.
+- The floating back-to-top button is global. It appears after 600px of scroll,
+  uses reduced-motion-aware scrolling, and is hidden at the top of the page.
+
+### Accessibility and browser tests
+
+`pnpm test:e2e` runs four Playwright projects: desktop light, desktop dark,
+mobile light, and mobile dark. The suite covers theme persistence, pagination
+focus and announcements, the floating top button, social/contact link dedupe,
+the sidebar Studio card, a 320px no-horizontal-overflow check, and axe scans for
+serious or critical WCAG A/AA violations. On failure, CI uploads the Playwright
+report as an artifact.
+
+### Git workflow
+
+`main` is protected: pull requests are required, the `Verify` check is strict,
+history is linear, conversations must resolve, admins are included, and force
+pushes/deletions are blocked. Work on a feature branch and merge with rebase:
+
+```bash
+git switch -c feat/your-change
+# ...
+pnpm lint && pnpm typecheck && pnpm build && pnpm test:e2e
+git push -u origin feat/your-change
+gh pr create --fill
+# wait for Verify, then:
+gh pr merge --rebase --delete-branch
+```
+
+CI only verifies the build and browser suite. Deployment is a separate,
+explicitly approved step.
 
 ## Before you launch
 
@@ -98,7 +168,9 @@ paper-on-blue contrast intact.
       `layout.tsx` if you want rich link previews
 - [ ] Re-check the Vercel work index and refresh any screenshots that have gone
       stale
-- [ ] Run `pnpm build` and check the site at mobile and desktop widths
+- [ ] Run `pnpm test:e2e` and confirm light/dark, desktop/mobile, and 320px
+- [ ] Keep new components on semantic tokens; fixed ink/paper only for
+      intentional inverse surfaces
 
 ## Deploy to Vercel
 
@@ -111,33 +183,43 @@ npx vercel
 
 Vercel detects Next.js automatically. After the first deploy, add your domain in
 Project Settings → Domains, then update `site.url` in `site.ts` and redeploy.
+This repository does not deploy from CI; deploying is a manual, approved step.
 
 ## Structure
 
 ```
 src/
   app/
-    layout.tsx        fonts, metadata, shell
-    page.tsx          section order
-    globals.css       tokens, base styles, grain, load animation
+    layout.tsx        fonts, metadata, providers, shell
+    page.tsx          section order, main landmark, footer
+    globals.css       semantic tokens, base styles, grain, motion
     not-found.tsx     404
     robots.ts         robots.txt
     sitemap.ts        sitemap.xml
   components/
-    site-sidebar.tsx  fixed desktop rail
-    site-header.tsx   mobile header
+    site-sidebar.tsx  fixed desktop rail, icon nav, Studio card
+    site-header.tsx   mobile header and theme toggle
+    site-footer.tsx   theme-aware footer card
+    scroll-to-top.tsx floating back-to-top control (client)
+    theme-provider.tsx / theme-toggle.tsx
     hero.tsx
     work.tsx          work section wrapper and counts
     work-grid.tsx     paginated project rows (client)
     services.tsx
     about.tsx
     testimonial-section.tsx
-    contact.tsx       contact + footer
+    contact.tsx       contact section
     clock.tsx         live Johannesburg time (client)
     copy-email.tsx    copy-to-clipboard button (client)
+    ui/               shadcn/ui primitives
+  lib/
+    utils.ts          app-level cn helper
   content/
     site.ts           identity, navigation, services, tools
     projects.ts       Vercel snapshot, published rows, skipped records
+e2e/
+  portfolio.spec.ts   browser, theme, and axe coverage
+playwright.config.ts  four desktop/mobile light/dark projects
 public/
   projects/           committed project screenshots
 ```
