@@ -162,6 +162,10 @@ test("testimonial carousel pairs portraits with names and navigates", async ({
 
   const portrait = firstSlide.locator("img");
   await expect(portrait).toHaveAttribute("src", /portrait-1\.jpg/);
+  await expect(firstSlide.getByText("Sample", { exact: true })).toBeVisible();
+  await expect(
+    firstSlide.getByRole("img", { name: "Rated 5 out of 5" }),
+  ).toBeVisible();
 
   const imageBox = await portrait.boundingBox();
   const nameBox = await firstSlide

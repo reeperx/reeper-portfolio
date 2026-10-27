@@ -85,12 +85,15 @@ export type Testimonial = {
   name: string;
   role: string;
   image: string;
+  /** Whole-number rating from 1 to 5. Only publish real ratings. */
+  rating: number;
+  /** Marks fabricated copy and ratings that must be replaced before launch. */
   placeholder?: boolean;
 };
 
-// Replace the sample quote and the two placeholder slides with real client
-// words and photos, with permission, before you launch. Do not ship a
-// testimonial that nobody actually said.
+// Replace all three sample slides with real client words, photos, and ratings
+// (with permission) before launch. Do not ship a testimonial or rating that
+// nobody actually gave.
 export const testimonials: Testimonial[] = [
   {
     quote:
@@ -98,6 +101,8 @@ export const testimonials: Testimonial[] = [
     name: "Thandi M.",
     role: "Founder, Fieldnote",
     image: "/testimonials/portrait-1.jpg",
+    rating: 5,
+    placeholder: true,
   },
   {
     quote:
@@ -105,6 +110,7 @@ export const testimonials: Testimonial[] = [
     name: "Client name",
     role: "Role, company",
     image: "/testimonials/portrait-2.jpg",
+    rating: 5,
     placeholder: true,
   },
   {
@@ -113,6 +119,7 @@ export const testimonials: Testimonial[] = [
     name: "Client name",
     role: "Role, company",
     image: "/testimonials/portrait-3.jpg",
+    rating: 5,
     placeholder: true,
   },
 ];
