@@ -288,6 +288,12 @@ test("desktop sidebar uses icon navigation and a distinct studio card", async ({
 
   const sidebar = page.locator("aside");
   await expect(sidebar).toBeVisible();
+  await expect(
+    sidebar.getByRole("link", { name: "Reeper — home" }),
+  ).toBeVisible();
+  await expect(
+    sidebar.getByText("Websites built to earn their keep."),
+  ).toBeVisible();
 
   const nav = sidebar.getByRole("navigation", { name: "Primary" });
   await expect(nav.getByRole("link")).toHaveCount(4);

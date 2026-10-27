@@ -2,6 +2,7 @@ export const site = {
   name: "Reeper",
   wordmark: "reeper",
   role: "Independent web developer",
+  tagline: "Websites built to earn their keep.",
   location: "Johannesburg, South Africa",
   shortLocation: "Johannesburg",
   timeZone: "Africa/Johannesburg",
