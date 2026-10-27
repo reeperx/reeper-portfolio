@@ -80,11 +80,39 @@ export const tools = [
   "Figma",
 ];
 
-// Replace this with a real client quote before you launch. Do not ship a
-// testimonial that nobody actually said.
-export const testimonial = {
-  quote:
-    "Reeper rebuilt our site in three weeks and it has paid for itself twice over. He asks better questions than the agencies we spoke to, and then he actually ships.",
-  name: "Thandi M.",
-  role: "Founder, Fieldnote",
+export type Testimonial = {
+  quote: string;
+  name: string;
+  role: string;
+  image: string;
+  placeholder?: boolean;
 };
+
+// Replace the sample quote and the two placeholder slides with real client
+// words and photos, with permission, before you launch. Do not ship a
+// testimonial that nobody actually said.
+export const testimonials: Testimonial[] = [
+  {
+    quote:
+      "Reeper rebuilt our site in three weeks and it has paid for itself twice over. He asks better questions than the agencies we spoke to, and then he actually ships.",
+    name: "Thandi M.",
+    role: "Founder, Fieldnote",
+    image: "/testimonials/portrait-1.jpg",
+  },
+  {
+    quote:
+      "A real client quote goes here. This slide is a placeholder so you can see how the carousel works with more than one testimonial.",
+    name: "Client name",
+    role: "Role, company",
+    image: "/testimonials/portrait-2.jpg",
+    placeholder: true,
+  },
+  {
+    quote:
+      "A second client quote goes here. Swap in the words of someone you have worked with, with their permission.",
+    name: "Client name",
+    role: "Role, company",
+    image: "/testimonials/portrait-3.jpg",
+    placeholder: true,
+  },
+];

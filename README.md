@@ -111,8 +111,14 @@ prose lives with its section.
    a screenshot in `public/projects/`, and filling in its summary, tags, and
    year. The grid shows four rows per page.
 3. **Services** — edit `services` with your actual offers and timelines.
-4. **Testimonial** — replace it with a real quote, or delete the
-   `<TestimonialSection />` line from `src/app/page.tsx`.
+4. **Testimonials** — edit the `testimonials` array in
+   [`src/content/site.ts`](src/content/site.ts). The first entry is a sample and
+   the other two are clearly marked placeholders. Replace all three with real
+   quotes and portraits you have permission to use, or delete the
+   `<TestimonialSection />` line from `src/app/page.tsx`. Portraits live in
+   `public/testimonials/`; the current images are free Pravatar placeholders.
+   The carousel auto-advances, pauses on hover or keyboard focus, and stops
+   automatically when the visitor prefers reduced motion.
 5. **Hero and about prose** — the headline and intro are in
    [`src/components/hero.tsx`](src/components/hero.tsx); the bio is in
    [`src/components/about.tsx`](src/components/about.tsx); the contact copy is
@@ -197,11 +203,13 @@ Display type is Bricolage Grotesque; text type is Instrument Sans.
 `pnpm test:e2e` runs four Playwright projects: desktop light, desktop dark,
 mobile light, and mobile dark. The suite covers theme persistence, pagination
 focus and announcements, the floating top button, social/contact link dedupe,
-the sidebar Studio card, contact-form labels and validation, a mocked successful
-submission, API validation/honeypot/cross-origin handling, legal-page content and
-footer links, sitemap entries, a 320px no-horizontal-overflow check, and axe
-scans for serious or critical WCAG A/AA violations. On failure, CI uploads the
-Playwright report as an artifact.
+the testimonial carousel’s portraits and manual controls, auto-advance and
+pause timing, reduced-motion behavior, the sidebar Studio card, contact-form
+labels and validation, a mocked successful submission, API
+validation/honeypot/cross-origin handling, legal-page content and footer links,
+sitemap entries, a 320px no-horizontal-overflow check, and axe scans for serious
+or critical WCAG A/AA violations. On failure, CI uploads the Playwright report
+as an artifact.
 
 ### Git workflow
 
@@ -224,7 +232,9 @@ explicitly approved step.
 
 ## Before you launch
 
-- [ ] Replace the placeholder testimonial (or remove it)
+- [ ] Replace the sample testimonial and both placeholder slides, and swap the
+      Pravatar portraits for real client photos (with permission)
+- [ ] Remove the testimonial section if there are no real quotes to show
 - [ ] Replace `hello@example.com` with an address you actually read
 - [ ] Verify a sending domain in Resend and replace `onboarding@resend.dev`
       with that address before relying on the contact form in production

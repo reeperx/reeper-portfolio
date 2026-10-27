@@ -70,6 +70,42 @@ export function ArrowUp({ className }: { className?: string }) {
   );
 }
 
+export function Pause({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      focusable="false"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <rect x="7" y="5" width="3.5" height="14" rx="1.25" />
+      <rect x="13.5" y="5" width="3.5" height="14" rx="1.25" />
+    </svg>
+  );
+}
+
+export function Play({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      focusable="false"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="m8 5 11 7-11 7V5Z" />
+    </svg>
+  );
+}
+
 export function Sun({ className }: { className?: string }) {
   return (
     <svg
