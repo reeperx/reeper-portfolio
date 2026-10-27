@@ -43,6 +43,15 @@ test("theme toggle switches, persists, and survives reload", async ({
   );
 });
 
+test("dark-mode select options use readable card colors", async ({ page }) => {
+  await page.evaluate(() => window.localStorage.setItem("theme", "dark"));
+  await page.reload();
+
+  const option = page.locator('select[name="projectType"] option').nth(1);
+  await expect(option).toHaveCSS("background-color", "rgb(22, 21, 27)");
+  await expect(option).toHaveCSS("color", "rgb(243, 241, 234)");
+});
+
 test("work pagination keeps focus and live announcements", async ({ page }) => {
   const list = page.locator("#work-project-list > a");
   const pager = page.getByRole("navigation", { name: "Work pagination" });
