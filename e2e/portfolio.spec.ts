@@ -168,7 +168,8 @@ test("desktop sidebar uses icon navigation and a distinct studio card", async ({
   }
 
   await expect(sidebar.getByText("Studio")).toBeVisible();
-  await expect(sidebar.getByText("Available for Q4 2026")).toBeVisible();
+  await expect(sidebar.getByText("Two Q4 slots open")).toBeVisible();
+  await expect(sidebar).not.toContainText("Available for Q4 2026");
   await expect(
     sidebar.locator('button[aria-label^="Switch to"]'),
   ).toHaveCount(1);

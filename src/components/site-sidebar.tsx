@@ -91,20 +91,18 @@ export function SiteSidebar() {
             className="pointer-events-none absolute -right-10 -top-10 size-28 rounded-full bg-primary/15 blur-2xl dark:bg-primary/25"
           />
           <div className="relative">
-            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-              <p className="text-[0.65rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                Studio
-              </p>
-              <span className="inline-flex items-center gap-1.5 text-[0.7rem] font-medium text-muted-foreground">
-                <span
-                  aria-hidden="true"
-                  className="size-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"
-                />
-                {site.availability}
-              </span>
-            </div>
-            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-              {site.availabilityNote}
+            <p className="text-[0.65rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+              Studio
+            </p>
+            <p className="mt-3 flex items-center gap-2 font-display text-lg font-semibold leading-tight tracking-[-0.02em] text-foreground">
+              <span
+                aria-hidden="true"
+                className="size-2 rounded-full bg-emerald-600 dark:bg-emerald-400"
+              />
+              Two Q4 slots open
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+              Selected projects, direct with the developer.
             </p>
             <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3">
               <span className="tabular inline-flex items-center gap-1.5 text-xs text-muted-foreground">
