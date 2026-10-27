@@ -51,6 +51,7 @@
 }
 
 :root {
+  color-scheme: light;
   --radius: 1rem;
 
   --background: #f3f1ea;
@@ -77,6 +78,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: #0c0b0f;
   --foreground: #f3f1ea;
   --card: #16151b;
@@ -121,6 +123,13 @@
   body {
     @apply bg-background text-foreground antialiased;
     text-rendering: optimizeLegibility;
+  }
+
+  /* Native select menus render outside the page. Give their options explicit
+     theme colors so dark-mode text never lands on a light OS popup. */
+  select option {
+    background-color: var(--card);
+    color: var(--card-foreground);
   }
 
   ::selection {
