@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ComponentType } from "react";
 
 import { Clock } from "@/components/clock";
@@ -37,13 +38,13 @@ export function SiteSidebar() {
       />
 
       <div className="relative">
-        <a
-          href="#top"
+        <Link
+          href="/#top"
           className="inline-flex w-fit items-baseline font-display text-3xl font-semibold tracking-[-0.045em]"
         >
           {site.wordmark}
           <span className="text-link">.</span>
-        </a>
+        </Link>
         <p className="mt-2 text-sm text-muted-foreground">{site.role}</p>
       </div>
 
@@ -55,7 +56,7 @@ export function SiteSidebar() {
 
             return (
               <li key={item.href}>
-                <a
+                <Link
                   href={item.href}
                   className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.95rem] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:text-foreground"
                 >
@@ -76,7 +77,7 @@ export function SiteSidebar() {
                       isContact && "bg-signal",
                     )}
                   />
-                </a>
+                </Link>
               </li>
             );
           })}

@@ -77,6 +77,27 @@ If you use the Resend CLI, `resend doctor` checks authentication and domain
 status, and `resend domains list` shows verified sending domains. For
 production, add the same variables in Vercel and redeploy.
 
+## Legal pages
+
+`/privacy` and `/terms` live in the `(legal)` route group. They share the site
+shell, footer, and typography through
+[`src/components/legal-page.tsx`](src/components/legal-page.tsx), and both are
+listed in `sitemap.xml`.
+
+The privacy policy describes the current data flow: inquiry details go to the
+configured inbox through Resend, the site is hosted on Vercel, there is no
+analytics or advertising tracking, and the theme preference stays in browser
+local storage. It covers POPIA, the Information Regulator, retention,
+cross-border processing, and visitor rights. The terms cover acceptable use,
+intellectual property, inquiries, warranties, liability, and South African
+governing law.
+
+These are plain-language starting points, not legal advice. Review both pages
+with a South African lawyer before launch, and update them if the data flow
+changes (for example, adding analytics, a CMS, or a different email provider).
+The pages use `hello@example.com` from `site.ts`; replace that placeholder with
+an address you actually read before launch.
+
 ## Make it yours
 
 Core data lives in [`src/content/site.ts`](src/content/site.ts); the longer
@@ -103,6 +124,9 @@ prose lives with its section.
 7. **Metadata** — update `site.url` (used for canonical links, the sitemap, and
    Open Graph metadata) and the title/description in
    [`src/app/layout.tsx`](src/app/layout.tsx).
+8. **Legal pages** — update `site.legalUpdated`, review `/privacy` and `/terms`,
+   and keep the data-flow descriptions accurate. See the legal-pages section
+   above.
 
 ### Work index
 
@@ -162,9 +186,9 @@ Display type is Bricolage Grotesque; text type is Instrument Sans.
   local time, and the theme toggle.
 - The mobile header keeps the compact nav and the theme toggle.
 - The footer is a theme-aware rounded card with the wordmark, a unique tagline,
-  the canonical GitHub/LinkedIn links, copyright, and the colophon. It
-  deliberately does not repeat the availability, location, or local-time copy
-  from the rest of the page.
+  the canonical GitHub/LinkedIn links, copyright, and Privacy Policy/Terms of
+  Use links. It deliberately does not repeat the availability, location, or
+  local-time copy from the rest of the page.
 - The floating back-to-top button is global. It appears after 600px of scroll,
   uses reduced-motion-aware scrolling, and is hidden at the top of the page.
 
@@ -174,9 +198,10 @@ Display type is Bricolage Grotesque; text type is Instrument Sans.
 mobile light, and mobile dark. The suite covers theme persistence, pagination
 focus and announcements, the floating top button, social/contact link dedupe,
 the sidebar Studio card, contact-form labels and validation, a mocked successful
-submission, API validation/honeypot/cross-origin handling, a 320px
-no-horizontal-overflow check, and axe scans for serious or critical WCAG A/AA
-violations. On failure, CI uploads the Playwright report as an artifact.
+submission, API validation/honeypot/cross-origin handling, legal-page content and
+footer links, sitemap entries, a 320px no-horizontal-overflow check, and axe
+scans for serious or critical WCAG A/AA violations. On failure, CI uploads the
+Playwright report as an artifact.
 
 ### Git workflow
 
@@ -206,6 +231,7 @@ explicitly approved step.
 - [ ] Send one test inquiry through the form and confirm it reaches
       `CONTACT_TO_EMAIL`
 - [ ] Add an edge rate limit or CAPTCHA to `/api/contact`
+- [ ] Review the privacy policy and terms with a South African lawyer
 - [ ] Replace the monogram with a real portrait
 - [ ] Update `site.url` to the production domain
 - [ ] Add a real Open Graph image (`public/og.jpg`) and reference it in
@@ -236,6 +262,9 @@ This repository does not deploy from CI; deploying is a manual, approved step.
 ```
 src/
   app/
+    (legal)/layout.tsx  policy-page shell with main landmark and footer
+    (legal)/privacy/page.tsx  privacy policy
+    (legal)/terms/page.tsx    terms of use
     api/contact/route.ts  validated Resend contact endpoint
     layout.tsx        fonts, metadata, providers, shell
     page.tsx          section order, main landmark, footer
@@ -244,6 +273,7 @@ src/
     robots.ts         robots.txt
     sitemap.ts        sitemap.xml
   components/
+    legal-page.tsx    shared legal page, section, and link primitives
     site-sidebar.tsx  fixed desktop rail, icon nav, Studio card
     site-header.tsx   mobile header and theme toggle
     site-footer.tsx   theme-aware footer card

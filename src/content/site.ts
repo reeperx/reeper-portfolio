@@ -10,6 +10,7 @@ export const site = {
   url: "https://example.com",
   description:
     "Independent web developer in Johannesburg, building fast, considered websites and web apps for small teams.",
+  legalUpdated: "27 October 2026",
   availability: "Available for Q4 2026",
   availabilityNote: "Taking on two new projects this quarter.",
   socials: [
@@ -18,10 +19,10 @@ export const site = {
     { label: "Email", href: "mailto:hello@example.com" },
   ],
   nav: [
-    { label: "Work", href: "#work" },
-    { label: "Services", href: "#services" },
-    { label: "About", href: "#about" },
-    { label: "Contact", href: "#contact" },
+    { label: "Work", href: "/#work" },
+    { label: "Services", href: "/#services" },
+    { label: "About", href: "/#about" },
+    { label: "Contact", href: "/#contact" },
   ],
 } as const;
 
