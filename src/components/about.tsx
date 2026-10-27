@@ -17,15 +17,17 @@ export function About() {
       <div className="mt-12 grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <div
           aria-hidden="true"
-          className="relative aspect-[4/5] overflow-hidden bg-blue grain-bg lg:sticky lg:top-10 lg:self-start"
+          className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-primary grain-bg lg:sticky lg:top-10 lg:self-start"
         >
-          <div className="absolute inset-4 border border-paper/20" />
-          <div className="absolute inset-0 flex flex-col justify-between p-8 text-paper">
-            <p className="text-sm text-paper/85">{site.shortLocation}</p>
+          <div className="absolute inset-4 rounded-xl border border-primary-foreground/20" />
+          <div className="absolute inset-0 flex flex-col justify-between p-8 text-primary-foreground">
+            <p className="text-sm text-primary-foreground/85">
+              {site.shortLocation}
+            </p>
             <p className="font-display text-[clamp(9rem,18vw,15rem)] font-semibold leading-[0.65] tracking-[-0.09em]">
               r<span className="text-signal">.</span>
             </p>
-            <div className="flex items-end justify-between text-sm text-paper/85">
+            <div className="flex items-end justify-between text-sm text-primary-foreground/85">
               <span>{site.name}</span>
               <span className="tabular">2026</span>
             </div>
@@ -39,7 +41,7 @@ export function About() {
             are fast, accessible, and easy to keep running.
           </p>
 
-          <div className="mt-6 max-w-[60ch] space-y-4 text-[0.95rem] leading-relaxed text-ink/70">
+          <div className="mt-6 max-w-[60ch] space-y-4 text-[0.95rem] leading-relaxed text-muted-foreground">
             <p>
               I work end to end: design, build, and deploy. No hand-offs, no
               account manager, no six-week discovery phase. You get one person
@@ -54,14 +56,14 @@ export function About() {
           </div>
 
           <div className="mt-10">
-            <h3 className="text-sm font-medium text-ink/65">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Tools I reach for
             </h3>
             <ul className="mt-3 grid grid-cols-2 gap-x-8">
               {tools.map((tool) => (
                 <li
                   key={tool}
-                  className="border-t border-ink/15 py-2.5 text-sm text-ink/80"
+                  className="border-t border-border py-2.5 text-sm text-foreground/80"
                 >
                   {tool}
                 </li>

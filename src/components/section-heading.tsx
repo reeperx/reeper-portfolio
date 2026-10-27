@@ -10,7 +10,7 @@ export function SectionHeading({
   aside?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 border-b border-ink/15 pb-6 xl:flex-row xl:items-end xl:justify-between xl:gap-12">
+    <div className="flex flex-col gap-4 border-b border-border pb-6 xl:flex-row xl:items-end xl:justify-between xl:gap-12">
       <h2
         id={id}
         className="font-display text-[clamp(2.25rem,4vw,3.5rem)] font-semibold leading-[1.02] tracking-[-0.035em]"
@@ -18,7 +18,7 @@ export function SectionHeading({
         {title}
       </h2>
       {aside ? (
-        <div className="max-w-[40ch] text-sm leading-relaxed text-ink/65 xl:text-right">
+        <div className="max-w-[40ch] text-sm leading-relaxed text-muted-foreground xl:text-right">
           {aside}
         </div>
       ) : null}

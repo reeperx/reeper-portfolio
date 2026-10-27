@@ -2,8 +2,10 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
 
+import { ScrollToTop } from "@/components/scroll-to-top";
 import { SiteHeader } from "@/components/site-header";
 import { SiteSidebar } from "@/components/site-sidebar";
+import { ThemeProvider } from "@/components/theme-provider";
 import { site } from "@/content/site";
 
 import "./globals.css";
@@ -53,27 +55,38 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#2338e8",
-  colorScheme: "light",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f3f1ea" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c0b0f" },
+  ],
+  colorScheme: "light dark",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en-ZA" className={`${display.variable} ${sans.variable}`}>
+    <html
+      lang="en-ZA"
+      suppressHydrationWarning
+      className={`${display.variable} ${sans.variable}`}
+    >
       <body>
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
         >
-          Skip to content
-        </a>
-        <SiteSidebar />
-        <SiteHeader />
-        <div className="lg:pl-[17rem]">
-          <main id="main" tabIndex={-1}>
-            {children}
-          </main>
-        </div>
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-foreground focus:px-4 focus:py-2 focus:text-background"
+          >
+            Skip to content
+          </a>
+          <SiteSidebar />
+          <SiteHeader />
+          <div className="lg:pl-[17rem]">{children}</div>
+          <ScrollToTop />
+        </ThemeProvider>
       </body>
     </html>
   );

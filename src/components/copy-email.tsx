@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { Button } from "@/components/ui/button";
+
 export function CopyEmail({ email }: { email: string }) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | null>(null);
@@ -24,12 +26,13 @@ export function CopyEmail({ email }: { email: string }) {
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
       onClick={copy}
-      className="border border-paper/40 px-4 py-2 text-sm font-medium text-paper transition-colors hover:border-paper hover:bg-paper hover:text-blue"
+      className="h-auto rounded-full border-on-brand/40 bg-transparent px-4 py-2 text-sm font-medium text-on-brand hover:border-on-brand hover:bg-on-brand hover:text-primary focus-visible:border-on-brand focus-visible:ring-on-brand/60"
     >
       <span aria-live="polite">{copied ? "Copied" : "Copy email"}</span>
-    </button>
+    </Button>
   );
 }

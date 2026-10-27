@@ -1,5 +1,6 @@
 import { SectionHeading } from "@/components/section-heading";
 import { services } from "@/content/site";
+import { cn } from "@/lib/utils";
 
 export function Services() {
   return (
@@ -18,20 +19,24 @@ export function Services() {
         {services.map((service, index) => (
           <div
             key={service.title}
-            className={`border-t border-ink/15 py-8 md:border-t-0 md:py-0 ${
-              index > 0 ? "md:border-l md:border-ink/15 md:pl-8" : ""
-            } ${index < services.length - 1 ? "md:pr-8" : ""}`}
+            className={cn(
+              "border-t border-border py-8 md:border-t-0 md:py-0",
+              index > 0 && "md:border-l md:border-border md:pl-8",
+              index < services.length - 1 && "md:pr-8",
+            )}
           >
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <h3 className="font-display text-2xl font-semibold tracking-[-0.025em]">
                 {service.title}
               </h3>
-              <p className="tabular text-sm text-ink/65">{service.timeline}</p>
+              <p className="tabular text-sm text-muted-foreground">
+                {service.timeline}
+              </p>
             </div>
-            <p className="mt-4 text-[0.95rem] leading-relaxed text-ink/70">
+            <p className="mt-4 text-[0.95rem] leading-relaxed text-muted-foreground">
               {service.description}
             </p>
-            <ul className="mt-6 list-disc space-y-2 pl-5 text-sm leading-relaxed text-ink/70 marker:text-blue">
+            <ul className="mt-6 list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground marker:text-link">
               {service.deliverables.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -40,11 +45,11 @@ export function Services() {
         ))}
       </div>
 
-      <p className="mt-12 border-t border-ink/15 pt-6 text-sm text-ink/65">
+      <p className="mt-12 border-t border-border pt-6 text-sm text-muted-foreground">
         Not sure which one fits?{" "}
         <a
           href="#contact"
-          className="font-medium text-ink underline decoration-1 underline-offset-4 transition-colors hover:text-blue"
+          className="font-medium text-foreground underline decoration-1 underline-offset-4 transition-colors hover:text-link"
         >
           Tell me what you’re building
         </a>{" "}
