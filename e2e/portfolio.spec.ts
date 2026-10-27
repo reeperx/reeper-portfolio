@@ -176,7 +176,7 @@ test("contact form is labelled and validates before sending", async ({ page }) =
 
   await form.getByRole("button", { name: "Send project brief" }).click();
 
-  await expect(form.getByRole("alert")).toContainText(
+  await expect(form.getByRole("alert")).toHaveText(
     "Please check the highlighted fields.",
   );
   await expect(form.getByText("Tell me your name.")).toBeVisible();
@@ -218,7 +218,9 @@ test("contact form sends a validated inquiry and confirms success", async ({
 
   await form.getByRole("button", { name: "Send project brief" }).click();
 
-  await expect(page.getByRole("status")).toContainText("Message sent.");
+  await expect(
+    page.getByRole("heading", { name: "Message sent.", exact: true }),
+  ).toBeVisible();
   await expect(page.getByRole("status")).toContainText("Thanks, Ada Lovelace.");
   await expect(page.getByRole("status")).toContainText("ada@example.com");
   expect(submitted).toMatchObject({
@@ -255,6 +257,37 @@ test("contact API rejects invalid payloads", async ({ request }) => {
   expect(body.fieldErrors).toMatchObject({
     name: "Tell me your name.",
     email: "Enter a valid email address.",
+  });
+});
+
+test("contact API accepts same-origin requests before validation", async ({
+  page,
+}) => {
+  const result = await page.evaluate(async () => {
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name: "A" }),
+    });
+
+    return {
+      status: response.status,
+      body: (await response.json()) as { error?: string },
+    };
+  });
+
+  expect(result.status).toBe(422);
+  expect(result.body.error).toBe("Please check the highlighted fields.");
+});
+
+test("contact API rejects oversized payloads", async ({ request }) => {
+  const response = await request.post("/api/contact", {
+    data: { message: "x".repeat(20_001) },
+  });
+
+  expect(response.status()).toBe(413);
+  expect(await response.json()).toEqual({
+    error: "That message is too large.",
   });
 });
 
