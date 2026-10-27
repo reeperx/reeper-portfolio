@@ -20,10 +20,12 @@ make yours.
 
 ```bash
 pnpm install
+cp .env.example .env.local
 pnpm dev
 ```
 
-Then open http://localhost:3000.
+Then open http://localhost:3000. Fill in the Resend values in `.env.local` if
+you want the contact form to send mail; the rest of the site runs without them.
 
 Useful checks:
 
@@ -38,6 +40,38 @@ pnpm test:e2e
 `pnpm test:e2e` starts a production server on port 3100 from the latest build.
 Run `pnpm build` first if the build output is stale, and stop a dev server on
 port 3100 if you want the test to own the port.
+
+## Contact form
+
+The contact panel posts to [`src/app/api/contact/route.ts`](src/app/api/contact/route.ts).
+The route validates the payload with zod, rejects a hidden honeypot field, and
+sends a table-based HTML notification plus a plain-text fallback through
+Resend. The visitor’s email is set as `replyTo`, so replying from your inbox
+goes straight back to them.
+
+Copy [`.env.example`](.env.example) to `.env.local` and set:
+
+```bash
+RESEND_API_KEY=re_...
+CONTACT_TO_EMAIL=you@gmail.com
+RESEND_FROM_EMAIL="Reeper <hello@yourdomain.com>"
+```
+
+- `RESEND_API_KEY` comes from [resend.com/api-keys](https://resend.com/api-keys).
+- `CONTACT_TO_EMAIL` is the inbox that receives inquiries.
+- `RESEND_FROM_EMAIL` must use a domain verified in Resend. The test sender
+  `onboarding@resend.dev` can only deliver to the address that owns the Resend
+  account, so it is useful for a first local test but not for production.
+
+The form’s success and validation states are client-side; the API validates
+again on the server. The notification email uses the fixed paper, ink, blue, and
+signal palette because email clients do not support the site’s CSS variables.
+The public address in `src/content/site.ts` is separate from the form
+destination and can be changed independently.
+
+If you use the Resend CLI, `resend doctor` checks authentication and domain
+status, and `resend domains list` shows verified sending domains. For
+production, add the same variables in Vercel and redeploy.
 
 ## Make it yours
 
@@ -135,9 +169,10 @@ Display type is Bricolage Grotesque; text type is Instrument Sans.
 `pnpm test:e2e` runs four Playwright projects: desktop light, desktop dark,
 mobile light, and mobile dark. The suite covers theme persistence, pagination
 focus and announcements, the floating top button, social/contact link dedupe,
-the sidebar Studio card, a 320px no-horizontal-overflow check, and axe scans for
-serious or critical WCAG A/AA violations. On failure, CI uploads the Playwright
-report as an artifact.
+the sidebar Studio card, contact-form labels and validation, a mocked successful
+submission, API validation/honeypot/cross-origin handling, a 320px
+no-horizontal-overflow check, and axe scans for serious or critical WCAG A/AA
+violations. On failure, CI uploads the Playwright report as an artifact.
 
 ### Git workflow
 
@@ -162,6 +197,10 @@ explicitly approved step.
 
 - [ ] Replace the placeholder testimonial (or remove it)
 - [ ] Replace `hello@example.com` with an address you actually read
+- [ ] Verify a sending domain in Resend and replace `onboarding@resend.dev`
+      with that address before relying on the contact form in production
+- [ ] Send one test inquiry through the form and confirm it reaches
+      `CONTACT_TO_EMAIL`
 - [ ] Replace the monogram with a real portrait
 - [ ] Update `site.url` to the production domain
 - [ ] Add a real Open Graph image (`public/og.jpg`) and reference it in
@@ -174,8 +213,10 @@ explicitly approved step.
 
 ## Deploy to Vercel
 
-The project has no environment variables and no external services. Import the
-repository at [vercel.com/new](https://vercel.com/new) or run:
+The site itself needs no environment variables. The contact form needs
+`RESEND_API_KEY`, `CONTACT_TO_EMAIL`, and `RESEND_FROM_EMAIL` in the Vercel
+project’s Environment Variables settings. Import the repository at
+[vercel.com/new](https://vercel.com/new) or run:
 
 ```bash
 npx vercel
@@ -190,6 +231,7 @@ This repository does not deploy from CI; deploying is a manual, approved step.
 ```
 src/
   app/
+    api/contact/route.ts  validated Resend contact endpoint
     layout.tsx        fonts, metadata, providers, shell
     page.tsx          section order, main landmark, footer
     globals.css       semantic tokens, base styles, grain, motion
@@ -209,10 +251,13 @@ src/
     about.tsx
     testimonial-section.tsx
     contact.tsx       contact section
+    contact-form.tsx  validated brief form (client)
     clock.tsx         live Johannesburg time (client)
     copy-email.tsx    copy-to-clipboard button (client)
     ui/               shadcn/ui primitives
   lib/
+    contact-schema.ts shared zod schema and field errors
+    email/contact-inquiry.ts  table-based HTML and text email
     utils.ts          app-level cn helper
   content/
     site.ts           identity, navigation, services, tools

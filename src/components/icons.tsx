@@ -167,6 +167,24 @@ export function AboutIcon({ className }: { className?: string }) {
   );
 }
 
+export function Check({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      focusable="false"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
+      <path d="m5 12 4 4L19 6" />
+    </svg>
+  );
+}
+
 export function ContactIcon({ className }: { className?: string }) {
   return (
     <svg

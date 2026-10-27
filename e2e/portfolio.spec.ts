@@ -155,3 +155,145 @@ test("has no serious accessibility violations", async ({ page }) => {
 
   expect(blocking, JSON.stringify(blocking, null, 2)).toEqual([]);
 });
+
+test("contact form is labelled and validates before sending", async ({ page }) => {
+  const form = page.locator("#contact-form");
+
+  await expect(form).toBeVisible();
+  await expect(form.getByLabel("Name", { exact: true })).toBeVisible();
+  await expect(form.getByLabel("Email", { exact: true })).toBeVisible();
+  await expect(form.getByLabel("Company", { exact: false })).toBeVisible();
+  await expect(form.getByLabel("Project type", { exact: true })).toBeVisible();
+  await expect(form.getByLabel("Budget", { exact: true })).toBeVisible();
+  await expect(form.getByLabel("Timeline", { exact: true })).toBeVisible();
+  await expect(form.getByLabel("Project brief", { exact: true })).toBeVisible();
+
+  let requests = 0;
+  await page.route("**/api/contact", async (route) => {
+    requests += 1;
+    await route.abort();
+  });
+
+  await form.getByRole("button", { name: "Send project brief" }).click();
+
+  await expect(form.getByRole("alert")).toContainText(
+    "Please check the highlighted fields.",
+  );
+  await expect(form.getByText("Tell me your name.")).toBeVisible();
+  await expect(form.getByLabel("Name", { exact: true })).toBeFocused();
+  expect(requests).toBe(0);
+
+  await page.unroute("**/api/contact");
+});
+
+test("contact form sends a validated inquiry and confirms success", async ({
+  page,
+}) => {
+  let submitted: Record<string, unknown> | null = null;
+
+  await page.route("**/api/contact", async (route) => {
+    submitted = route.request().postDataJSON() as Record<string, unknown>;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true }),
+    });
+  });
+
+  const form = page.locator("#contact-form");
+
+  await form.getByLabel("Name", { exact: true }).fill("Ada Lovelace");
+  await form.getByLabel("Email", { exact: true }).fill("ada@example.com");
+  await form.getByLabel("Company", { exact: false }).fill("Fieldnote");
+  await form.getByLabel("Project type", { exact: true }).selectOption("Web app");
+  await form
+    .getByLabel("Budget", { exact: true })
+    .selectOption("R50k – R100k");
+  await form.getByLabel("Timeline", { exact: true }).selectOption("2–4 weeks");
+  await form
+    .getByLabel("Project brief", { exact: true })
+    .fill(
+      "We need a focused client portal for a small team, with auth and a clean handover.",
+    );
+
+  await form.getByRole("button", { name: "Send project brief" }).click();
+
+  await expect(page.getByRole("status")).toContainText("Message sent.");
+  await expect(page.getByRole("status")).toContainText("Thanks, Ada Lovelace.");
+  await expect(page.getByRole("status")).toContainText("ada@example.com");
+  expect(submitted).toMatchObject({
+    name: "Ada Lovelace",
+    email: "ada@example.com",
+    company: "Fieldnote",
+    projectType: "Web app",
+    budget: "R50k – R100k",
+    timeline: "2–4 weeks",
+    "bot-field": "",
+  });
+
+  await page.getByRole("button", { name: "Send another message" }).click();
+  await expect(page.locator("#contact-form")).toBeVisible();
+
+  await page.unroute("**/api/contact");
+});
+
+test("contact API rejects invalid payloads", async ({ request }) => {
+  const response = await request.post("/api/contact", {
+    data: {
+      name: "A",
+      email: "nope",
+      projectType: "",
+      budget: "",
+      timeline: "",
+      message: "too short",
+    },
+  });
+
+  expect(response.status()).toBe(422);
+  const body = await response.json();
+  expect(body.error).toBe("Please check the highlighted fields.");
+  expect(body.fieldErrors).toMatchObject({
+    name: "Tell me your name.",
+    email: "Enter a valid email address.",
+  });
+});
+
+test("contact API silently accepts honeypot submissions", async ({
+  request,
+}) => {
+  const response = await request.post("/api/contact", {
+    data: {
+      name: "Spam Bot",
+      email: "spam@example.com",
+      projectType: "Web app",
+      budget: "Not sure yet",
+      timeline: "Flexible",
+      message: "This submission fills the hidden field and should go nowhere.",
+      "bot-field": "https://spam.example",
+    },
+  });
+
+  expect(response.status()).toBe(200);
+  expect(await response.json()).toEqual({ ok: true });
+});
+
+test("contact API rejects cross-origin browser requests", async ({
+  request,
+}) => {
+  const response = await request.post("/api/contact", {
+    headers: { Origin: "https://evil.example" },
+    data: {
+      name: "Ada Lovelace",
+      email: "ada@example.com",
+      projectType: "Web app",
+      budget: "Not sure yet",
+      timeline: "Flexible",
+      message: "This request should be rejected before it can send an email.",
+    },
+  });
+
+  expect(response.status()).toBe(403);
+  expect(await response.json()).toEqual({
+    error: "Requests must come from the portfolio site.",
+  });
+});
