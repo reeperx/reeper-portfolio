@@ -103,8 +103,9 @@ an address you actually read before launch.
 Core data lives in [`src/content/site.ts`](src/content/site.ts); the longer
 prose lives with its section.
 
-1. **Identity** — change `name`, `wordmark`, `role`, `email`, `url`, `location`,
-   social links, and availability.
+1. **Identity** — change `name`, `wordmark`, `role`, `tagline`, `email`, `url`,
+   `location`, social links, and availability. The blue and orange sidebar mark
+   lives in [`src/components/logo.tsx`](src/components/logo.tsx).
 2. **Work** — edit [`src/content/projects.ts`](src/content/projects.ts). It
    contains all 37 projects pulled from Vercel: 19 published rows and 18
    skipped records. Add a project by moving it into `publishedProjects`, adding

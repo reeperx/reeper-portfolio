@@ -8,6 +8,7 @@ import {
   ServicesIcon,
   WorkIcon,
 } from "@/components/icons";
+import { LogoMark } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { site } from "@/content/site";
 import { cn } from "@/lib/utils";
@@ -40,12 +41,18 @@ export function SiteSidebar() {
       <div className="relative">
         <Link
           href="/#top"
-          className="inline-flex w-fit items-baseline font-display text-3xl font-semibold tracking-[-0.045em]"
+          aria-label={`${site.name} — home`}
+          className="inline-flex w-fit items-center gap-3"
         >
-          {site.wordmark}
-          <span className="text-link">.</span>
+          <LogoMark className="size-11 shrink-0" />
+          <span className="font-display text-3xl font-semibold tracking-[-0.045em]">
+            {site.wordmark}
+            <span className="text-link">.</span>
+          </span>
         </Link>
-        <p className="mt-2 text-sm text-muted-foreground">{site.role}</p>
+        <p className="mt-3 max-w-[14rem] text-sm leading-relaxed text-muted-foreground">
+          {site.tagline}
+        </p>
       </div>
 
       <nav aria-label="Primary" className="relative mt-12">
