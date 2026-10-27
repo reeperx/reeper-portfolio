@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ThemeToggle } from "@/components/theme-toggle";
 import { site } from "@/content/site";
 
@@ -5,48 +7,48 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-md lg:hidden">
       <div className="flex items-center justify-between gap-3 px-5 py-4">
-        <a
-          href="#top"
+        <Link
+          href="/#top"
           className="inline-flex items-baseline font-display text-2xl font-semibold tracking-[-0.045em]"
         >
           {site.wordmark}
           <span className="text-link">.</span>
-        </a>
+        </Link>
 
         <div className="flex items-center gap-2 sm:gap-3">
           <nav aria-label="Primary">
             <ul className="flex items-center gap-2 text-sm sm:gap-4">
               <li>
-                <a
-                  href="#work"
+                <Link
+                  href="/#work"
                   className="text-muted-foreground transition-colors hover:text-foreground"
                 >
                   Work
-                </a>
+                </Link>
               </li>
               <li className="hidden sm:block">
-                <a
-                  href="#services"
+                <Link
+                  href="/#services"
                   className="text-muted-foreground transition-colors hover:text-foreground"
                 >
                   Services
-                </a>
+                </Link>
               </li>
               <li className="hidden sm:block">
-                <a
-                  href="#about"
+                <Link
+                  href="/#about"
                   className="text-muted-foreground transition-colors hover:text-foreground"
                 >
                   About
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#contact"
+                <Link
+                  href="/#contact"
                   className="inline-flex h-9 items-center rounded-full bg-foreground px-3.5 font-medium text-background transition-colors hover:bg-primary hover:text-primary-foreground sm:h-10 sm:px-4"
                 >
                   Contact
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>

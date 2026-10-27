@@ -83,20 +83,70 @@ test("social and contact links appear exactly once", async ({ page }, testInfo) 
   await expect(page.locator('a[href^="mailto:"]')).toHaveCount(1);
 
   const footer = page.locator('footer[aria-labelledby="footer-heading"]');
-  const footerLinks = footer.getByRole("link");
-  await expect(footerLinks).toHaveCount(2);
-  await expect(footer.locator("nav")).toHaveCount(0);
+  const socialLinks = footer
+    .getByRole("navigation", { name: "Social links" })
+    .getByRole("link");
+  const legalLinks = footer
+    .getByRole("navigation", { name: "Legal" })
+    .getByRole("link");
+
+  await expect(socialLinks).toHaveCount(2);
+  await expect(legalLinks).toHaveCount(2);
+  await expect(
+    legalLinks.filter({ hasText: "Privacy Policy" }),
+  ).toHaveAttribute("href", "/privacy");
+  await expect(legalLinks.filter({ hasText: "Terms of Use" })).toHaveAttribute(
+    "href",
+    "/terms",
+  );
+  await expect(footer).not.toContainText("Built with Next.js");
   await expect(footer).not.toContainText("Available for Q4 2026");
   await expect(footer).not.toContainText("Johannesburg");
   await expect(footer).not.toContainText("SAST");
 
   if (!testInfo.project.name.startsWith("mobile")) {
-    for (const link of await footerLinks.all()) {
+    for (const link of await socialLinks.all()) {
       await link.hover();
       await expect(link).toHaveCSS("background-color", "rgb(35, 56, 232)");
       await expect(link).toHaveCSS("color", "rgb(243, 241, 234)");
     }
   }
+});
+
+test("legal pages carry policy content and footer links", async ({ page }) => {
+  await page.goto("/privacy");
+
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Privacy Policy" }),
+  ).toBeVisible();
+  await expect(page.getByText("Last updated 27 October 2026")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "What I collect" }),
+  ).toBeVisible();
+
+  const footer = page.locator('footer[aria-labelledby="footer-heading"]');
+  await footer.getByRole("link", { name: "Terms of Use" }).click();
+
+  await expect(page).toHaveURL(/\/terms$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Terms of Use" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Project inquiries" }),
+  ).toBeVisible();
+  await expect(
+    footer.getByRole("link", { name: "Privacy Policy" }),
+  ).toHaveAttribute("href", "/privacy");
+});
+
+test("sitemap lists the legal pages", async ({ request }) => {
+  const response = await request.get("/sitemap.xml");
+
+  expect(response.status()).toBe(200);
+  const body = await response.text();
+  expect(body).toContain("/privacy");
+  expect(body).toContain("/terms");
 });
 
 test("desktop sidebar uses icon navigation and a distinct studio card", async ({
@@ -154,6 +204,30 @@ test("has no serious accessibility violations", async ({ page }) => {
   );
 
   expect(blocking, JSON.stringify(blocking, null, 2)).toEqual([]);
+});
+
+test("legal pages have no serious accessibility violations", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+
+  for (const path of ["/privacy", "/terms"]) {
+    await page.goto(path);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+
+    const results = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .analyze();
+
+    const blocking = results.violations.filter(
+      (violation) =>
+        violation.impact === "serious" || violation.impact === "critical",
+    );
+
+    expect(blocking, `${path}\n${JSON.stringify(blocking, null, 2)}`).toEqual(
+      [],
+    );
+  }
 });
 
 test("contact form is labelled and validates before sending", async ({ page }) => {

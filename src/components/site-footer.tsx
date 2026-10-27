@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ArrowUpRight } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { site } from "@/content/site";
@@ -43,7 +45,10 @@ export function SiteFooter() {
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <nav
+              aria-label="Social links"
+              className="flex flex-wrap items-center gap-2"
+            >
               {externalSocials.map((social) => (
                 <Button
                   key={social.label}
@@ -63,14 +68,30 @@ export function SiteFooter() {
                   </a>
                 </Button>
               ))}
-            </div>
+            </nav>
           </div>
 
-          <div className="mt-10 flex flex-col gap-3 border-t border-border pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-10 flex flex-col gap-4 border-t border-border pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <p>
               © {year} {site.name}. All rights reserved.
             </p>
-            <p>Built with Next.js, shadcn/ui, and Tailwind CSS.</p>
+            <nav
+              aria-label="Legal"
+              className="flex flex-wrap items-center gap-x-5 gap-y-2"
+            >
+              <Link
+                href="/privacy"
+                className="transition-colors hover:text-foreground hover:underline hover:underline-offset-4"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                href="/terms"
+                className="transition-colors hover:text-foreground hover:underline hover:underline-offset-4"
+              >
+                Terms of Use
+              </Link>
+            </nav>
           </div>
         </div>
       </div>
