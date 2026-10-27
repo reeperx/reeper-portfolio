@@ -20,10 +20,58 @@ function oneLine(value: string) {
 }
 
 function requestHost(request: Request) {
-  const forwardedHost = request.headers.get("x-forwarded-host");
-  const host = forwardedHost ?? request.headers.get("host");
+  // The browser cannot set Host from JavaScript, and Next can normalise
+  // request.url to localhost behind a local server. Avoid x-forwarded-host,
+  // which a caller can supply themselves.
+  const host = request.headers.get("host")?.trim();
 
-  return host?.split(",")[0]?.trim() ?? null;
+  if (host) {
+    return host.toLowerCase();
+  }
+
+  try {
+    return new URL(request.url).host.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+async function readBodyWithLimit(
+  request: Request,
+  limit: number,
+): Promise<string | null> {
+  if (!request.body) {
+    return "";
+  }
+
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder();
+  let received = 0;
+  let text = "";
+
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      received += value.byteLength;
+
+      if (received > limit) {
+        await reader.cancel();
+        return null;
+      }
+
+      text += decoder.decode(value, { stream: true });
+    }
+
+    return text + decoder.decode();
+  } catch {
+    await reader.cancel().catch(() => {});
+    return null;
+  }
 }
 
 export async function POST(request: Request) {
@@ -42,7 +90,7 @@ export async function POST(request: Request) {
     const host = requestHost(request);
 
     try {
-      if (!host || new URL(origin).host !== host) {
+      if (!host || new URL(origin).host.toLowerCase() !== host) {
         return NextResponse.json(
           { error: "Requests must come from the portfolio site." },
           { status: 403 },
@@ -56,10 +104,19 @@ export async function POST(request: Request) {
     }
   }
 
+  const rawBody = await readBodyWithLimit(request, MAX_BODY_BYTES);
+
+  if (rawBody === null) {
+    return NextResponse.json(
+      { error: "That message is too large." },
+      { status: 413 },
+    );
+  }
+
   let payload: unknown;
 
   try {
-    payload = await request.json();
+    payload = JSON.parse(rawBody);
   } catch {
     return NextResponse.json(
       { error: "Send a JSON body." },

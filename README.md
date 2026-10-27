@@ -44,10 +44,10 @@ port 3100 if you want the test to own the port.
 ## Contact form
 
 The contact panel posts to [`src/app/api/contact/route.ts`](src/app/api/contact/route.ts).
-The route validates the payload with zod, rejects a hidden honeypot field, and
-sends a table-based HTML notification plus a plain-text fallback through
-Resend. The visitor’s email is set as `replyTo`, so replying from your inbox
-goes straight back to them.
+The route validates the payload with zod, silently accepts submissions with a
+populated honeypot field without sending mail, and sends a table-based HTML
+notification plus a plain-text fallback through Resend. The visitor’s email is
+set as `replyTo`, so replying from your inbox goes straight back to them.
 
 Copy [`.env.example`](.env.example) to `.env.local` and set:
 
@@ -64,10 +64,14 @@ RESEND_FROM_EMAIL="Reeper <hello@yourdomain.com>"
   account, so it is useful for a first local test but not for production.
 
 The form’s success and validation states are client-side; the API validates
-again on the server. The notification email uses the fixed paper, ink, blue, and
-signal palette because email clients do not support the site’s CSS variables.
-The public address in `src/content/site.ts` is separate from the form
-destination and can be changed independently.
+again on the server and caps request bodies at 20 KB. The notification email
+uses the fixed paper, ink, blue, and signal palette because email clients do not
+support the site’s CSS variables. The public address in `src/content/site.ts` is
+separate from the form destination and can be changed independently.
+
+The honeypot and same-origin check discourage casual abuse but are not a
+substitute for an edge rate limit or CAPTCHA. Add one in Vercel Firewall, or use
+a shared limiter such as Upstash, before promoting the form more widely.
 
 If you use the Resend CLI, `resend doctor` checks authentication and domain
 status, and `resend domains list` shows verified sending domains. For
@@ -201,6 +205,7 @@ explicitly approved step.
       with that address before relying on the contact form in production
 - [ ] Send one test inquiry through the form and confirm it reaches
       `CONTACT_TO_EMAIL`
+- [ ] Add an edge rate limit or CAPTCHA to `/api/contact`
 - [ ] Replace the monogram with a real portrait
 - [ ] Update `site.url` to the production domain
 - [ ] Add a real Open Graph image (`public/og.jpg`) and reference it in
