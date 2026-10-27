@@ -149,6 +149,131 @@ test("sitemap lists the legal pages", async ({ request }) => {
   expect(body).toContain("/terms");
 });
 
+test("testimonial carousel pairs portraits with names and navigates", async ({
+  page,
+}) => {
+  const carousel = page.getByRole("region", { name: "What clients say" });
+  const slides = carousel.locator('[aria-roledescription="slide"]');
+  const firstSlide = slides.nth(0);
+  const secondSlide = slides.nth(1);
+
+  await expect(firstSlide).toHaveAttribute("aria-hidden", "false");
+  await expect(secondSlide).toHaveAttribute("aria-hidden", "true");
+
+  const portrait = firstSlide.locator("img");
+  await expect(portrait).toHaveAttribute("src", /portrait-1\.jpg/);
+
+  const imageBox = await portrait.boundingBox();
+  const nameBox = await firstSlide
+    .getByText("Thandi M.", { exact: true })
+    .boundingBox();
+  expect(imageBox).not.toBeNull();
+  expect(nameBox).not.toBeNull();
+  expect(imageBox!.x).toBeLessThan(nameBox!.x);
+
+  await carousel.getByRole("button", { name: "Next testimonial" }).click();
+
+  await expect(firstSlide).toHaveAttribute("aria-hidden", "true");
+  await expect(secondSlide).toHaveAttribute("aria-hidden", "false");
+  await expect(secondSlide.getByText("Sample", { exact: true })).toBeVisible();
+
+  await carousel
+    .getByRole("button", { name: "Show testimonial 1 of 3" })
+    .click();
+
+  await expect(firstSlide).toHaveAttribute("aria-hidden", "false");
+  await expect(secondSlide).toHaveAttribute("aria-hidden", "true");
+});
+
+test("testimonial carousel auto-advances, pauses, and explicitly restarts", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "desktop-light",
+    "Timing coverage runs once.",
+  );
+  test.slow();
+
+  const carousel = page.getByRole("region", { name: "What clients say" });
+  const slides = carousel.locator('[aria-roledescription="slide"]');
+  const slide = (number: number) => slides.nth(number - 1);
+
+  await expect(slide(1)).toHaveAttribute("aria-hidden", "false");
+  await expect(
+    carousel.getByRole("button", { name: "Pause automatic rotation" }),
+  ).toBeVisible();
+
+  await expect(slide(2)).toHaveAttribute("aria-hidden", "false", {
+    timeout: 9000,
+  });
+
+  await carousel.hover();
+  await page.waitForTimeout(7000);
+  await expect(slide(2)).toHaveAttribute("aria-hidden", "false");
+
+  await page.mouse.move(0, 0);
+  await expect(slide(3)).toHaveAttribute("aria-hidden", "false", {
+    timeout: 9000,
+  });
+
+  const nextButton = carousel.getByRole("button", {
+    name: "Next testimonial",
+  });
+  await nextButton.focus();
+  await expect(nextButton).toBeFocused();
+  await page.waitForTimeout(7000);
+  await expect(slide(3)).toHaveAttribute("aria-hidden", "false");
+
+  await page.getByRole("heading", { level: 1 }).click();
+  await expect(nextButton).not.toBeFocused();
+  await page.waitForTimeout(7000);
+  await expect(slide(3)).toHaveAttribute("aria-hidden", "false");
+
+  await carousel
+    .getByRole("button", { name: "Pause automatic rotation" })
+    .click();
+  await expect(
+    carousel.getByRole("button", { name: "Start automatic rotation" }),
+  ).toBeVisible();
+  await page.waitForTimeout(7000);
+  await expect(slide(3)).toHaveAttribute("aria-hidden", "false");
+
+  await carousel
+    .getByRole("button", { name: "Start automatic rotation" })
+    .click();
+  await expect(slide(1)).toHaveAttribute("aria-hidden", "false", {
+    timeout: 9000,
+  });
+});
+
+test("testimonial carousel stays still when reduced motion is requested", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "desktop-light",
+    "Reduced-motion coverage runs once.",
+  );
+  test.slow();
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.reload();
+
+  const carousel = page.getByRole("region", { name: "What clients say" });
+  const slides = carousel.locator('[aria-roledescription="slide"]');
+  const firstSlide = slides.nth(0);
+  const secondSlide = slides.nth(1);
+
+  await expect(
+    carousel.getByRole("button", { name: /automatic rotation/ }),
+  ).toHaveCount(0);
+
+  await page.waitForTimeout(7000);
+  await expect(firstSlide).toHaveAttribute("aria-hidden", "false");
+
+  await carousel.getByRole("button", { name: "Next testimonial" }).click();
+  await expect(secondSlide).toHaveAttribute("aria-hidden", "false");
+});
+
 test("desktop sidebar uses icon navigation and a distinct studio card", async ({
   page,
 }, testInfo) => {
