@@ -1,0 +1,125 @@
+export const site = {
+  name: "Reeper",
+  wordmark: "reeper",
+  role: "Independent web developer",
+  location: "Johannesburg, South Africa",
+  shortLocation: "Johannesburg",
+  timeZone: "Africa/Johannesburg",
+  // Reserved placeholder domain — replace before launch.
+  email: "hello@example.com",
+  url: "https://example.com",
+  description:
+    "Independent web developer in Johannesburg, building fast, considered websites and web apps for small teams.",
+  availability: "Available for Q4 2026",
+  availabilityNote: "Taking on two new projects this quarter.",
+  socials: [
+    { label: "GitHub", href: "https://github.com/reeperx" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/reeperx" },
+    { label: "Email", href: "mailto:hello@example.com" },
+  ],
+  nav: [
+    { label: "Work", href: "#work" },
+    { label: "Services", href: "#services" },
+    { label: "About", href: "#about" },
+    { label: "Contact", href: "#contact" },
+  ],
+} as const;
+
+export type Project = {
+  name: string;
+  summary: string;
+  tags: string[];
+  year: string;
+  // Replace every example.com URL with the real Vercel deployment.
+  href: string;
+};
+
+export const projects: Project[] = [
+  {
+    name: "Vendo",
+    summary:
+      "A production workspace for e-commerce photo teams. Brief, generate, review, and ship product imagery in one place, with a live queue and a review trail clients can follow.",
+    tags: ["Next.js", "TypeScript", "MongoDB", "AWS S3"],
+    year: "2026",
+    href: "https://vendo.example.com",
+  },
+  {
+    name: "Mathonsi",
+    summary:
+      "A calm, clear lead engine for families arranging a funeral. A sensitive flow matches families with the right service, captures details once, and gets a consultant on the phone quickly.",
+    tags: ["Next.js", "Drizzle", "Postgres", "Resend"],
+    year: "2025",
+    href: "https://mathonsi.example.com",
+  },
+  {
+    name: "Fieldnote",
+    summary:
+      "An offline-first field journal for landscape crews. Teams record site conditions, photos, and hours without signal; the office sees clean records the moment they are back online.",
+    tags: ["React", "IndexedDB", "Node.js"],
+    year: "2024",
+    href: "https://fieldnote.example.com",
+  },
+];
+
+export type Service = {
+  title: string;
+  timeline: string;
+  description: string;
+  deliverables: string[];
+};
+
+export const services: Service[] = [
+  {
+    title: "Launch site",
+    timeline: "2–4 weeks",
+    description:
+      "For a new product, studio, or service that needs a site people trust.",
+    deliverables: [
+      "Design direction and page design",
+      "A Next.js build, with a CMS where it helps",
+      "Analytics, SEO, and a Vercel deploy",
+    ],
+  },
+  {
+    title: "Web app",
+    timeline: "4–8 weeks",
+    description:
+      "For a focused product surface, internal tool, or client portal.",
+    deliverables: [
+      "Auth, data model, and API",
+      "Payments or billing where needed",
+      "Tests and a clean handover",
+    ],
+  },
+  {
+    title: "Rescue",
+    timeline: "1–2 weeks",
+    description:
+      "For a site that is slow, hard to update, or quietly broken.",
+    deliverables: [
+      "Performance and accessibility fixes",
+      "Dependency and security cleanup",
+      "Notes on what changed and why",
+    ],
+  },
+];
+
+export const tools = [
+  "TypeScript",
+  "React",
+  "Next.js",
+  "Tailwind CSS",
+  "Node.js",
+  "Postgres",
+  "Vercel",
+  "Figma",
+];
+
+// Replace this with a real client quote before you launch. Do not ship a
+// testimonial that nobody actually said.
+export const testimonial = {
+  quote:
+    "Reeper rebuilt our site in three weeks and it has paid for itself twice over. He asks better questions than the agencies we spoke to, and then he actually ships.",
+  name: "Thandi M.",
+  role: "Founder, Fieldnote",
+};
