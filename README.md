@@ -1,9 +1,10 @@
 # Reeper — freelance portfolio
 
-A one-page portfolio for an independent web developer. The work is presented as
-an editorial index, every project row links straight to its live Vercel deploy,
-and the editable content lives in a small set of files so the site is quick to
-make yours.
+A portfolio for an independent web developer. The homepage is a focused
+introduction; [`/work`](src/app/work/page.tsx) is the complete, server-rendered
+index of public projects. Every project row links straight to its live Vercel
+deploy, and the editable content lives in a small set of files so the site is
+quick to make yours.
 
 ## Stack
 
@@ -24,8 +25,22 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Then open http://localhost:3000. Fill in the Resend values in `.env.local` if
-you want the contact form to send mail; the rest of the site runs without them.
+Then open http://localhost:3000. Set the two public values in `.env.local`
+before production:
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+NEXT_PUBLIC_CONTACT_EMAIL=hello@yourdomain.com
+```
+
+`NEXT_PUBLIC_SITE_URL` must be an absolute origin with no trailing slash. It
+drives canonical URLs, the sitemap, robots, Open Graph/Twitter metadata, and
+JSON-LD. Until it is set, the build uses `https://example.com` as an obvious
+placeholder. `NEXT_PUBLIC_CONTACT_EMAIL` controls the public address in the
+contact panel, footer, and structured data.
+
+Fill in the Resend values too if you want the contact form to send mail; the
+rest of the site runs without them.
 
 Useful checks:
 
@@ -66,8 +81,9 @@ RESEND_FROM_EMAIL="Reeper <hello@yourdomain.com>"
 The form’s success and validation states are client-side; the API validates
 again on the server and caps request bodies at 20 KB. The notification email
 uses the fixed paper, ink, blue, and signal palette because email clients do not
-support the site’s CSS variables. The public address in `src/content/site.ts` is
-separate from the form destination and can be changed independently.
+support the site’s CSS variables. The public address comes from
+`NEXT_PUBLIC_CONTACT_EMAIL` and is separate from the form destination, so it can
+be changed independently.
 
 The honeypot and same-origin check discourage casual abuse but are not a
 substitute for an edge rate limit or CAPTCHA. Add one in Vercel Firewall, or use
@@ -95,22 +111,25 @@ governing law.
 These are plain-language starting points, not legal advice. Review both pages
 with a South African lawyer before launch, and update them if the data flow
 changes (for example, adding analytics, a CMS, or a different email provider).
-The pages use `hello@example.com` from `site.ts`; replace that placeholder with
-an address you actually read before launch.
+The contact address on both pages comes from `NEXT_PUBLIC_CONTACT_EMAIL`; set it
+to an address you actually read before launch.
 
 ## Make it yours
 
 Core data lives in [`src/content/site.ts`](src/content/site.ts); the longer
 prose lives with its section.
 
-1. **Identity** — change `name`, `wordmark`, `role`, `tagline`, `email`, `url`,
-   `location`, social links, and availability. The blue and orange sidebar mark
-   lives in [`src/components/logo.tsx`](src/components/logo.tsx).
+1. **Identity** — change `name`, `wordmark`, `role`, `tagline`, `location`,
+   social links, and availability in `site.ts`. The public email and site origin
+   are environment-driven; see [SEO and metadata](#seo-and-metadata). The blue
+   and orange sidebar mark lives in
+   [`src/components/logo.tsx`](src/components/logo.tsx).
 2. **Work** — edit [`src/content/projects.ts`](src/content/projects.ts). It
    contains all 37 projects pulled from Vercel: 19 published rows and 18
    skipped records. Add a project by moving it into `publishedProjects`, adding
    a screenshot in `public/projects/`, and filling in its summary, tags, and
-   year. The grid shows four rows per page.
+   year. The homepage grid shows four rows per page and links to `/work`, which
+   server-renders the full published index.
 3. **Services** — edit `services` with your actual offers and timelines.
 4. **Testimonials** — edit the `testimonials` array in
    [`src/content/site.ts`](src/content/site.ts). All three entries are currently
@@ -130,12 +149,48 @@ prose lives with its section.
    [`src/components/about.tsx`](src/components/about.tsx) is a designed
    placeholder. Swap it for a photo with `next/image`, and give the image
    meaningful alt text.
-7. **Metadata** — update `site.url` (used for canonical links, the sitemap, and
-   Open Graph metadata) and the title/description in
-   [`src/app/layout.tsx`](src/app/layout.tsx).
+7. **Metadata and SEO** — set `NEXT_PUBLIC_SITE_URL` and
+   `NEXT_PUBLIC_CONTACT_EMAIL`, then adjust the title, description, and social
+   copy in [`src/app/layout.tsx`](src/app/layout.tsx) and
+   [`src/app/opengraph-image.tsx`](src/app/opengraph-image.tsx). See
+   [SEO and metadata](#seo-and-metadata).
 8. **Legal pages** — update `site.legalUpdated`, review `/privacy` and `/terms`,
    and keep the data-flow descriptions accurate. See the legal-pages section
    above.
+
+### SEO and metadata
+
+The public SEO surface is environment-driven and covered by Playwright:
+
+- `NEXT_PUBLIC_SITE_URL` becomes `metadataBase` and the origin for canonical
+  links, `sitemap.xml`, `robots.txt`, Open Graph/Twitter images, and JSON-LD.
+- `NEXT_PUBLIC_CONTACT_EMAIL` is the public email in the page, footer, and
+  `Person`/`ProfessionalService` schema.
+- `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` and
+  `NEXT_PUBLIC_BING_SITE_VERIFICATION` are optional. When set, they emit the
+  matching verification meta tags; when empty, no tag is emitted.
+- `src/app/opengraph-image.tsx` and `src/app/twitter-image.tsx` generate a
+  1200×630 social card from the site tagline at build time. There is no static
+  `public/og.jpg` to keep in sync.
+- [`src/lib/structured-data.ts`](src/lib/structured-data.ts) emits a connected
+  `WebSite`, `Person`, `ProfessionalService`, and `WebPage` graph. `/work` adds
+  a `CollectionPage` with an `ItemList` of every published project, and legal
+  pages add `BreadcrumbList` schema.
+- Review and `AggregateRating` schema is emitted only for testimonials where
+  `placeholder` is `false`. The current sample ratings are deliberately
+  excluded, so no fabricated review markup can ship.
+- `/work` is a server-rendered, canonical page listing every published project;
+  the homepage links to it. `sitemap.xml` includes home, work, legal pages, and
+  project images. `robots.txt` disallows `/api/`, and the web manifest plus
+  security headers are generated by `manifest.ts` and `next.config.ts`.
+- `site.contentUpdated` is the stable ISO date used for sitemap `lastmod` and
+  schema `dateModified`; bump it when the content changes.
+
+After setting the public variables, check the generated `<head>`, `/work`,
+`/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest`, and the social image
+routes on a production build. The e2e suite covers canonical/social metadata,
+JSON-LD (including the no-fake-reviews guard), sitemap/robots/manifest, security
+headers, `/work` server rendering, and its accessibility scan.
 
 ### Work index
 
@@ -210,9 +265,10 @@ the testimonial carousel’s portraits and manual controls, auto-advance and
 pause timing, reduced-motion behavior, the sidebar Studio card, contact-form
 labels and validation, a mocked successful submission, API
 validation/honeypot/cross-origin handling, legal-page content and footer links,
-sitemap entries, a 320px no-horizontal-overflow check, and axe scans for serious
-or critical WCAG A/AA violations. On failure, CI uploads the Playwright report
-as an artifact.
+canonical/social metadata, JSON-LD without fabricated reviews, sitemap/robots/
+manifest output, security headers, the server-rendered `/work` index, a 320px
+no-horizontal-overflow check, and axe scans for serious or critical WCAG A/AA
+violations. On failure, CI uploads the Playwright report as an artifact.
 
 ### Git workflow
 
@@ -235,11 +291,14 @@ explicitly approved step.
 
 ## Before you launch
 
+- [ ] Set `NEXT_PUBLIC_SITE_URL` to the production origin and
+      `NEXT_PUBLIC_CONTACT_EMAIL` to a mailbox you actually read
+- [ ] Set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` and/or
+      `NEXT_PUBLIC_BING_SITE_VERIFICATION` if you use Search Console
 - [ ] Replace all sample testimonial slides and their made-up ratings, and swap
       the Pravatar portraits for real client photos and verified ratings (with
       permission)
 - [ ] Remove the testimonial section if there are no real quotes to show
-- [ ] Replace `hello@example.com` with an address you actually read
 - [ ] Verify a sending domain in Resend and replace `onboarding@resend.dev`
       with that address before relying on the contact form in production
 - [ ] Send one test inquiry through the form and confirm it reaches
@@ -247,9 +306,9 @@ explicitly approved step.
 - [ ] Add an edge rate limit or CAPTCHA to `/api/contact`
 - [ ] Review the privacy policy and terms with a South African lawyer
 - [ ] Replace the monogram with a real portrait
-- [ ] Update `site.url` to the production domain
-- [ ] Add a real Open Graph image (`public/og.jpg`) and reference it in
-      `layout.tsx` if you want rich link previews
+- [ ] Review the generated Open Graph/Twitter card and update the copy in
+      `src/app/opengraph-image.tsx` if needed
+- [ ] Bump `site.contentUpdated` when the work or copy changes
 - [ ] Re-check the Vercel work index and refresh any screenshots that have gone
       stale
 - [ ] Run `pnpm test:e2e` and confirm light/dark, desktop/mobile, and 320px
@@ -258,18 +317,26 @@ explicitly approved step.
 
 ## Deploy to Vercel
 
-The site itself needs no environment variables. The contact form needs
-`RESEND_API_KEY`, `CONTACT_TO_EMAIL`, and `RESEND_FROM_EMAIL` in the Vercel
-project’s Environment Variables settings. Import the repository at
-[vercel.com/new](https://vercel.com/new) or run:
+Set these in the Vercel project’s Environment Variables settings before the
+production build:
+
+- `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_CONTACT_EMAIL` for the public site.
+- `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, and `RESEND_FROM_EMAIL` for the contact
+  form.
+- Optional: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` and
+  `NEXT_PUBLIC_BING_SITE_VERIFICATION`.
+
+Import the repository at [vercel.com/new](https://vercel.com/new) or run:
 
 ```bash
 npx vercel
 ```
 
 Vercel detects Next.js automatically. After the first deploy, add your domain in
-Project Settings → Domains, then update `site.url` in `site.ts` and redeploy.
-This repository does not deploy from CI; deploying is a manual, approved step.
+Project Settings → Domains, set `NEXT_PUBLIC_SITE_URL` to that origin, and
+redeploy so canonical URLs, the sitemap, and social metadata use the real
+domain. This repository does not deploy from CI; deploying is a manual,
+approved step.
 
 ## Structure
 
@@ -282,19 +349,23 @@ src/
     api/contact/route.ts  validated Resend contact endpoint
     layout.tsx        fonts, metadata, providers, shell
     page.tsx          section order, main landmark, footer
+    work/page.tsx     server-rendered full project index
     globals.css       semantic tokens, base styles, grain, motion
     not-found.tsx     404
+    manifest.ts       web manifest
+    opengraph-image.tsx / twitter-image.tsx  generated social cards
     robots.ts         robots.txt
-    sitemap.ts        sitemap.xml
+    sitemap.ts        sitemap.xml with project images
   components/
     legal-page.tsx    shared legal page, section, and link primitives
+    json-ld.tsx       safe JSON-LD script renderer
     site-sidebar.tsx  fixed desktop rail, icon nav, Studio card
     site-header.tsx   mobile header and theme toggle
     site-footer.tsx   theme-aware footer card
     scroll-to-top.tsx floating back-to-top control (client)
     theme-provider.tsx / theme-toggle.tsx
     hero.tsx
-    work.tsx          work section wrapper and counts
+    work.tsx          work section wrapper, counts, all-work link
     work-grid.tsx     paginated project rows (client)
     services.tsx
     about.tsx
@@ -307,6 +378,8 @@ src/
   lib/
     contact-schema.ts shared zod schema and field errors
     email/contact-inquiry.ts  table-based HTML and text email
+    seo.ts            absolute URL, host, and social image helpers
+    structured-data.ts  site, work, and breadcrumb JSON-LD
     utils.ts          app-level cn helper
   content/
     site.ts           identity, navigation, services, tools

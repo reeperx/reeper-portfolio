@@ -133,6 +133,10 @@ test("legal pages carry policy content and footer links", async ({ page }) => {
   await expect(
     page.getByRole("heading", { level: 2, name: "What I collect" }),
   ).toBeVisible();
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    /\/opengraph-image$/,
+  );
 
   const footer = page.locator('footer[aria-labelledby="footer-heading"]');
   await footer.getByRole("link", { name: "Terms of Use" }).click();
@@ -149,13 +153,238 @@ test("legal pages carry policy content and footer links", async ({ page }) => {
   ).toHaveAttribute("href", "/privacy");
 });
 
-test("sitemap lists the legal pages", async ({ request }) => {
+test("sitemap lists work, legal pages, and project images", async ({
+  request,
+}) => {
   const response = await request.get("/sitemap.xml");
 
   expect(response.status()).toBe(200);
   const body = await response.text();
+  expect(body).toContain("/work");
   expect(body).toContain("/privacy");
   expect(body).toContain("/terms");
+  expect(body).toContain("ngobz-mobile.jpg");
+  expect(body).toContain("<lastmod>2026-10-29</lastmod>");
+});
+
+test("robots and manifest expose crawl and install metadata", async ({
+  request,
+}) => {
+  const robotsResponse = await request.get("/robots.txt");
+  expect(robotsResponse.status()).toBe(200);
+  const robots = await robotsResponse.text();
+  expect(robots).toContain("Disallow: /api/");
+  expect(robots).toContain("Sitemap: https://example.com/sitemap.xml");
+  expect(robots).toContain("Host: example.com");
+
+  const manifestResponse = await request.get("/manifest.webmanifest");
+  expect(manifestResponse.status()).toBe(200);
+  expect(manifestResponse.headers()["content-type"]).toContain(
+    "application/manifest+json",
+  );
+  const manifest = (await manifestResponse.json()) as {
+    name?: string;
+    short_name?: string;
+    start_url?: string;
+    icons?: Array<{ src?: string }>;
+  };
+  expect(manifest.name).toContain("Reeper");
+  expect(manifest.short_name).toBe("Reeper");
+  expect(manifest.start_url).toBe("/");
+  expect(manifest.icons?.[0]?.src).toBe("/icon.svg");
+});
+
+test("homepage exposes complete canonical and social metadata", async ({
+  page,
+  request,
+}) => {
+  const canonical = await page
+    .locator('link[rel="canonical"]')
+    .getAttribute("href");
+  expect(canonical).not.toBeNull();
+  expect(new URL(canonical!).pathname).toBe("/");
+
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    /Independent web developer in Johannesburg/,
+  );
+  await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
+    "content",
+    "website",
+  );
+  await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
+    "content",
+    "Reeper",
+  );
+  await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute(
+    "content",
+    "en_ZA",
+  );
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    /\/opengraph-image/,
+  );
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+    "content",
+    "summary_large_image",
+  );
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+    "content",
+    /\/twitter-image/,
+  );
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(
+    "href",
+    "/manifest.webmanifest",
+  );
+
+  const ogImage = await request.get("/opengraph-image");
+  expect(ogImage.status()).toBe(200);
+  expect(ogImage.headers()["content-type"]).toContain("image/png");
+
+  const twitterImage = await request.get("/twitter-image");
+  expect(twitterImage.status()).toBe(200);
+  expect(twitterImage.headers()["content-type"]).toContain("image/png");
+});
+
+test("structured data describes the studio without sample reviews", async ({
+  page,
+}) => {
+  const payloads = await page
+    .locator('script[type="application/ld+json"]')
+    .evaluateAll((nodes) =>
+      nodes.map((node) => JSON.parse(node.textContent ?? "{}")),
+    );
+  const graph = payloads.flatMap(
+    (payload: { "@graph"?: Array<Record<string, unknown>> }) =>
+      payload["@graph"] ?? [payload],
+  );
+  const types = graph.map((entry) => entry["@type"]);
+
+  expect(types).toEqual(
+    expect.arrayContaining([
+      "WebSite",
+      "Person",
+      "ProfessionalService",
+      "WebPage",
+    ]),
+  );
+
+  const serialized = JSON.stringify(payloads);
+  expect(serialized).not.toContain('"Review"');
+  expect(serialized).not.toContain('"AggregateRating"');
+
+  const service = graph.find(
+    (entry) => entry["@type"] === "ProfessionalService",
+  ) as
+    | {
+        hasOfferCatalog?: { itemListElement?: unknown[] };
+        slogan?: string;
+      }
+    | undefined;
+  expect(service?.slogan).toBe("Websites built to earn their keep.");
+  expect(service?.hasOfferCatalog?.itemListElement?.length).toBeGreaterThan(0);
+});
+
+test("security headers are set on responses", async ({ request }) => {
+  const response = await request.get("/");
+  const headers = response.headers();
+
+  expect(headers["x-content-type-options"]).toBe("nosniff");
+  expect(headers["x-frame-options"]).toBe("SAMEORIGIN");
+  expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+  expect(headers["cross-origin-opener-policy"]).toBe("same-origin");
+  expect(headers["strict-transport-security"]).toContain("max-age=");
+  expect(headers["x-powered-by"]).toBeUndefined();
+});
+
+test("all work page is a server-rendered, crawlable index", async ({
+  page,
+  request,
+}) => {
+  const htmlResponse = await request.get("/work");
+  const html = await htmlResponse.text();
+  expect(html).toContain("All work");
+  expect(html).toContain("NGOBZ Mobile");
+
+  await page.goto("/work");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "All work" }),
+  ).toBeVisible();
+
+  const projects = page.locator("#work-project-list > a");
+  await expect(projects).toHaveCount(19);
+  await expect(
+    page.getByRole("navigation", { name: "Work pagination" }),
+  ).toHaveCount(0);
+
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    /\/work$/,
+  );
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    /\/opengraph-image$/,
+  );
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+    "content",
+    /\/twitter-image$/,
+  );
+
+  const payloads = await page
+    .locator('script[type="application/ld+json"]')
+    .evaluateAll((nodes) =>
+      nodes.map((node) => JSON.parse(node.textContent ?? "{}")),
+    );
+  const collection = payloads
+    .flatMap((payload: { "@type"?: string } | Array<{ "@type"?: string }>) =>
+      Array.isArray(payload) ? payload : [payload],
+    )
+    .find((payload) => payload["@type"] === "CollectionPage") as
+    | {
+        mainEntity?: {
+          "@type"?: string;
+          numberOfItems?: number;
+          itemListElement?: unknown[];
+        };
+      }
+    | undefined;
+  expect(collection?.mainEntity?.["@type"]).toBe("ItemList");
+  expect(collection?.mainEntity?.numberOfItems).toBe(19);
+  expect(collection?.mainEntity?.itemListElement).toHaveLength(19);
+
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  const blocking = results.violations.filter(
+    (violation) =>
+      violation.impact === "serious" || violation.impact === "critical",
+  );
+  expect(blocking, JSON.stringify(blocking, null, 2)).toEqual([]);
+});
+
+test("all work page does not overflow at 320px", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto("/work");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "All work" }),
+  ).toBeVisible();
+
+  const overflow = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }));
+
+  expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth);
+});
+
+test("homepage links to the complete work index", async ({ page }) => {
+  const viewAll = page.getByRole("link", {
+    name: /View all 19 projects/,
+  });
+  await expect(viewAll).toHaveAttribute("href", "/work");
+
+  await viewAll.click();
+  await expect(page).toHaveURL(/\/work$/);
 });
 
 test("testimonial carousel pairs portraits with names and navigates", async ({

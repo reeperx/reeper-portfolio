@@ -2,11 +2,13 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
 
+import { JsonLd } from "@/components/json-ld";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { SiteHeader } from "@/components/site-header";
 import { SiteSidebar } from "@/components/site-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { site } from "@/content/site";
+import { buildSiteGraph } from "@/lib/structured-data";
 
 import "./globals.css";
 
@@ -22,36 +24,58 @@ const sans = Instrument_Sans({
   display: "swap",
 });
 
+const googleVerification =
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
+const bingVerification =
+  process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.trim();
+
+const verification =
+  googleVerification || bingVerification
+    ? {
+        ...(googleVerification ? { google: googleVerification } : {}),
+        ...(bingVerification
+          ? { other: { "msvalidate.01": bingVerification } }
+          : {}),
+      }
+    : undefined;
+
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} — ${site.role}`,
+    default: `${site.name} — ${site.role} in ${site.shortLocation}`,
     template: `%s — ${site.name}`,
   },
   description: site.description,
   applicationName: `${site.name} — ${site.role}`,
   authors: [{ name: site.name, url: site.url }],
   creator: site.name,
-  alternates: {
-    canonical: "/",
-  },
+  publisher: site.name,
+  category: "technology",
   openGraph: {
     type: "website",
     locale: "en_ZA",
     url: site.url,
     siteName: site.name,
-    title: `${site.name} — ${site.role}`,
+    title: `${site.name} — ${site.role} in ${site.shortLocation}`,
     description: site.description,
   },
   twitter: {
-    card: "summary",
-    title: `${site.name} — ${site.role}`,
+    card: "summary_large_image",
+    title: `${site.name} — ${site.role} in ${site.shortLocation}`,
     description: site.description,
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
+  ...(verification ? { verification } : {}),
 };
 
 export const viewport: Viewport = {
@@ -70,6 +94,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${display.variable} ${sans.variable}`}
     >
       <body>
+        <JsonLd data={buildSiteGraph()} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -14,24 +14,28 @@ const PAGE_SIZE = 4;
 export function WorkGrid({
   projects,
   totalVercelProjects,
+  pageSize = PAGE_SIZE,
+  showPagination = true,
 }: {
   projects: WorkProject[];
   totalVercelProjects: number;
+  pageSize?: number;
+  showPagination?: boolean;
 }) {
   const [page, setPage] = useState(1);
   const listTopRef = useRef<HTMLDivElement>(null);
   const firstProjectRef = useRef<HTMLAnchorElement>(null);
   const previousPage = useRef(1);
 
-  const totalPages = Math.max(1, Math.ceil(projects.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(projects.length / pageSize));
   const currentPage = Math.min(page, totalPages);
 
   const visibleProjects = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    return projects.slice(start, start + PAGE_SIZE);
-  }, [currentPage, projects]);
+    const start = (currentPage - 1) * pageSize;
+    return projects.slice(start, start + pageSize);
+  }, [currentPage, pageSize, projects]);
 
-  const firstProjectNumber = (currentPage - 1) * PAGE_SIZE + 1;
+  const firstProjectNumber = (currentPage - 1) * pageSize + 1;
   const lastProjectNumber = firstProjectNumber + visibleProjects.length - 1;
 
   useEffect(() => {
@@ -63,11 +67,7 @@ export function WorkGrid({
         {firstProjectNumber} to {lastProjectNumber} of {projects.length}.
       </p>
 
-      <div
-        ref={listTopRef}
-        id="work-project-list"
-        className="scroll-mt-28"
-      >
+      <div ref={listTopRef} id="work-project-list" className="scroll-mt-28">
         {visibleProjects.map((project, index) => {
           const projectNumber = firstProjectNumber + index;
 
@@ -143,67 +143,70 @@ export function WorkGrid({
         })}
       </div>
 
-      <nav
-        aria-label="Work pagination"
-        className="mt-10 flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between"
-      >
-        <p className="tabular text-sm text-muted-foreground">
-          Page {currentPage} of {totalPages}
-        </p>
+      {showPagination ? (
+        <nav
+          aria-label="Work pagination"
+          className="mt-10 flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p className="tabular text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </p>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => goToPage(currentPage - 1)}
-            disabled={currentPage === 1}
-            aria-controls="work-project-list"
-            aria-label="Previous page"
-            className="h-10 rounded-full px-4 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="size-4" />
-            <span className="hidden sm:inline">Previous</span>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              aria-controls="work-project-list"
+              aria-label="Previous page"
+              className="h-10 rounded-full px-4 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="size-4" />
+              <span className="hidden sm:inline">Previous</span>
+            </Button>
 
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-            (pageNumber) => {
-              const isCurrent = pageNumber === currentPage;
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+              (pageNumber) => {
+                const isCurrent = pageNumber === currentPage;
 
-              return (
-                <Button
-                  key={pageNumber}
-                  type="button"
-                  variant={isCurrent ? "default" : "outline"}
-                  size="icon"
-                  onClick={() => goToPage(pageNumber)}
-                  aria-controls="work-project-list"
-                  aria-label={`Page ${pageNumber}`}
-                  aria-current={isCurrent ? "page" : undefined}
-                  className={cn(
-                    "size-10 rounded-full",
-                    !isCurrent && "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {pageNumber}
-                </Button>
-              );
-            },
-          )}
+                return (
+                  <Button
+                    key={pageNumber}
+                    type="button"
+                    variant={isCurrent ? "default" : "outline"}
+                    size="icon"
+                    onClick={() => goToPage(pageNumber)}
+                    aria-controls="work-project-list"
+                    aria-label={`Page ${pageNumber}`}
+                    aria-current={isCurrent ? "page" : undefined}
+                    className={cn(
+                      "size-10 rounded-full",
+                      !isCurrent &&
+                        "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {pageNumber}
+                  </Button>
+                );
+              },
+            )}
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => goToPage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            aria-controls="work-project-list"
-            aria-label="Next page"
-            className="h-10 rounded-full px-4 text-muted-foreground hover:text-foreground"
-          >
-            <span className="hidden sm:inline">Next</span>
-            <ArrowRight className="size-4" />
-          </Button>
-        </div>
-      </nav>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              aria-controls="work-project-list"
+              aria-label="Next page"
+              className="h-10 rounded-full px-4 text-muted-foreground hover:text-foreground"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ArrowRight className="size-4" />
+            </Button>
+          </div>
+        </nav>
+      ) : null}
 
       <div className="mt-8 flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
         <p>
