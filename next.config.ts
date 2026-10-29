@@ -1,5 +1,15 @@
 import type { NextConfig } from "next";
 
+if (
+  process.env.VERCEL_ENV === "production" &&
+  (!process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    !process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim())
+) {
+  throw new Error(
+    "NEXT_PUBLIC_SITE_URL and NEXT_PUBLIC_CONTACT_EMAIL are required for production deployments.",
+  );
+}
+
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },

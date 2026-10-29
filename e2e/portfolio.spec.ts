@@ -1,6 +1,11 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
+const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+const expectedSiteOrigin = configuredSiteUrl
+  ? new URL(configuredSiteUrl).origin
+  : "https://example.com";
+
 function visibleThemeToggle(page: Page) {
   return page.locator('button[aria-label^="Switch to"]:visible').first();
 }
@@ -165,6 +170,7 @@ test("sitemap lists work, legal pages, and project images", async ({
   expect(body).toContain("/terms");
   expect(body).toContain("ngobz-mobile.jpg");
   expect(body).toContain("<lastmod>2026-10-29</lastmod>");
+  expect(body.match(/<lastmod>2026-10-27<\/lastmod>/g)).toHaveLength(2);
 });
 
 test("robots and manifest expose crawl and install metadata", async ({
@@ -174,8 +180,8 @@ test("robots and manifest expose crawl and install metadata", async ({
   expect(robotsResponse.status()).toBe(200);
   const robots = await robotsResponse.text();
   expect(robots).toContain("Disallow: /api/");
-  expect(robots).toContain("Sitemap: https://example.com/sitemap.xml");
-  expect(robots).toContain("Host: example.com");
+  expect(robots).toContain(`Sitemap: ${expectedSiteOrigin}/sitemap.xml`);
+  expect(robots).toContain(`Host: ${new URL(expectedSiteOrigin).host}`);
 
   const manifestResponse = await request.get("/manifest.webmanifest");
   expect(manifestResponse.status()).toBe(200);
@@ -335,11 +341,15 @@ test("all work page is a server-rendered, crawlable index", async ({
     .evaluateAll((nodes) =>
       nodes.map((node) => JSON.parse(node.textContent ?? "{}")),
     );
-  const collection = payloads
-    .flatMap((payload: { "@type"?: string } | Array<{ "@type"?: string }>) =>
+  const entries = payloads.flatMap(
+    (payload: { "@type"?: string } | Array<{ "@type"?: string }>) =>
       Array.isArray(payload) ? payload : [payload],
-    )
-    .find((payload) => payload["@type"] === "CollectionPage") as
+  );
+  expect(entries.some((entry) => entry["@type"] === "WebPage")).toBe(false);
+
+  const collection = entries.find(
+    (payload) => payload["@type"] === "CollectionPage",
+  ) as
     | {
         mainEntity?: {
           "@type"?: string;

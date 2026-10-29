@@ -129,18 +129,22 @@ export function buildSiteGraph() {
         ...(hasPlaceholderEmail ? {} : { email: site.email }),
       },
       professionalService,
-      {
-        "@type": "WebPage",
-        "@id": homePageId,
-        url: rootUrl,
-        name: `${site.name} — ${site.role} in ${site.shortLocation}`,
-        description: site.description,
-        inLanguage: "en-ZA",
-        isPartOf: { "@id": websiteId },
-        about: { "@id": serviceId },
-        dateModified: site.contentUpdated,
-      },
     ],
+  };
+}
+
+export function buildHomePageSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": homePageId,
+    url: rootUrl,
+    name: `${site.name} — ${site.role} in ${site.shortLocation}`,
+    description: site.description,
+    inLanguage: "en-ZA",
+    isPartOf: { "@id": websiteId },
+    about: { "@id": serviceId },
+    dateModified: site.contentUpdated,
   };
 }
 
