@@ -69,8 +69,11 @@ export default function PrivacyPage() {
           <p>
             The hosting provider may process technical information such as your
             IP address, browser type, the pages you request, and timestamps in
-            server logs. This is used to keep the site secure and working. I do
-            not run advertising or analytics tracking on this site.
+            server logs. This is used to keep the site secure and working. I
+            also use Vercel Web Analytics to collect aggregate page views and
+            basic device, browser, and referrer information. It is cookieless
+            and does not use cross-site identifiers. I do not run advertising
+            tracking.
           </p>
           <p>
             Your light or dark theme choice is stored in your browser’s local
@@ -83,7 +86,8 @@ export default function PrivacyPage() {
             I use inquiry details to respond to you, understand the project,
             prepare a proposal, and keep a record of our conversation. I use
             technical logs to protect the site from abuse and to diagnose
-            problems.
+            problems. I use aggregate analytics to understand which pages are
+            useful and to improve the site.
           </p>
           <p>
             I may also use information where the law requires it, or to
@@ -108,11 +112,11 @@ export default function PrivacyPage() {
 
         <LegalSection title="Who receives it">
           <p>
-            I use service providers to host the site and deliver email: Vercel
-            for hosting, Resend for email delivery, and Google for the inbox
-            that receives inquiries. Those providers process information on my
-            behalf and under their own privacy terms. I do not sell or rent
-            personal information.
+            I use service providers to host the site, measure aggregate usage,
+            and deliver email: Vercel for hosting and analytics, Resend for
+            email delivery, and Google for the inbox that receives inquiries.
+            Those providers process information on my behalf and under their
+            own privacy terms. I do not sell or rent personal information.
           </p>
           <p>
             I may disclose information if required by law, if necessary to
@@ -199,7 +203,9 @@ export default function PrivacyPage() {
 
         <LegalSection title="Cookies and tracking">
           <p>
-            I do not use advertising cookies, analytics, or cross-site trackers.
+            I do not use advertising cookies or cross-site trackers. Vercel Web
+            Analytics is cookieless and reports aggregate page views, referrers,
+            and basic device information without using cross-site identifiers.
             The site uses browser local storage for the theme preference. The
             hosting provider may use essential cookies or similar technology for
             security and performance.

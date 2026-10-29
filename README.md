@@ -13,6 +13,7 @@ quick to make yours.
 - TypeScript
 - shadcn/ui primitives (Radix UI) on semantic design tokens
 - next-themes for a system-first light/dark mode
+- Vercel Web Analytics for cookieless, aggregate page views
 - Playwright + axe-core for browser and accessibility checks
 - Fonts: Bricolage Grotesque (display) and Instrument Sans (text), both via
   `next/font/google`
@@ -101,16 +102,16 @@ shell, footer, and typography through
 listed in `sitemap.xml`.
 
 The privacy policy describes the current data flow: inquiry details go to the
-configured inbox through Resend, the site is hosted on Vercel, there is no
-analytics or advertising tracking, and the theme preference stays in browser
-local storage. It covers POPIA, the Information Regulator, retention,
-cross-border processing, and visitor rights. The terms cover acceptable use,
-intellectual property, inquiries, warranties, liability, and South African
-governing law.
+configured inbox through Resend, the site is hosted on Vercel, Vercel Web
+Analytics collects cookieless aggregate page views, there is no advertising
+tracking, and the theme preference stays in browser local storage. It covers
+POPIA, the Information Regulator, retention, cross-border processing, and
+visitor rights. The terms cover acceptable use, intellectual property,
+inquiries, warranties, liability, and South African governing law.
 
 These are plain-language starting points, not legal advice. Review both pages
 with a South African lawyer before launch, and update them if the data flow
-changes (for example, adding analytics, a CMS, or a different email provider).
+changes (for example, changing analytics, a CMS, or a different email provider).
 The contact address on both pages comes from `NEXT_PUBLIC_CONTACT_EMAIL`; set it
 to an address you actually read before launch.
 
@@ -328,6 +329,13 @@ production build:
   form.
 - Optional: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` and
   `NEXT_PUBLIC_BING_SITE_VERIFICATION`.
+
+The root layout mounts `@vercel/analytics`. Enable Web Analytics for the project
+in the Vercel dashboard or with:
+
+```bash
+vercel project web-analytics enable <project>
+```
 
 Import the repository at [vercel.com/new](https://vercel.com/new) or run:
 

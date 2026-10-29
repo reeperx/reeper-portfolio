@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
 
 import { JsonLd } from "@/components/json-ld";
@@ -112,6 +113,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="lg:pl-[17rem]">{children}</div>
           <ScrollToTop />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

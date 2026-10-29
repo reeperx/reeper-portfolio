@@ -33,8 +33,8 @@ export const site = {
   description:
     "Independent web developer in Johannesburg, building fast, considered websites and web apps for small teams.",
   contentUpdated: "2026-10-29",
-  legalUpdated: "27 October 2026",
-  legalUpdatedIso: "2026-10-27",
+  legalUpdated: "29 October 2026",
+  legalUpdatedIso: "2026-10-29",
   availability: "Available for Q4 2026",
   availabilityNote: "Taking on two new projects this quarter.",
   socials: [
