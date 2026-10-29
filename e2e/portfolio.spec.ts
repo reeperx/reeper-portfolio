@@ -134,7 +134,7 @@ test("legal pages carry policy content and footer links", async ({ page }) => {
   await expect(
     page.getByRole("heading", { level: 1, name: "Privacy Policy" }),
   ).toBeVisible();
-  await expect(page.getByText("Last updated 27 October 2026")).toBeVisible();
+  await expect(page.getByText("Last updated 29 October 2026")).toBeVisible();
   await expect(
     page.getByRole("heading", { level: 2, name: "What I collect" }),
   ).toBeVisible();
@@ -169,8 +169,7 @@ test("sitemap lists work, legal pages, and project images", async ({
   expect(body).toContain("/privacy");
   expect(body).toContain("/terms");
   expect(body).toContain("ngobz-mobile.jpg");
-  expect(body).toContain("<lastmod>2026-10-29</lastmod>");
-  expect(body.match(/<lastmod>2026-10-27<\/lastmod>/g)).toHaveLength(2);
+  expect(body.match(/<lastmod>2026-10-29<\/lastmod>/g)).toHaveLength(4);
 });
 
 test("robots and manifest expose crawl and install metadata", async ({
@@ -289,6 +288,16 @@ test("structured data describes the studio without sample reviews", async ({
     | undefined;
   expect(service?.slogan).toBe("Websites built to earn their keep.");
   expect(service?.hasOfferCatalog?.itemListElement?.length).toBeGreaterThan(0);
+});
+
+test("Vercel Web Analytics is wired into the app", async ({ page }) => {
+  await expect
+    .poll(() => page.evaluate(() => "va" in window))
+    .toBe(true);
+
+  await expect(
+    page.locator('script[src="/_vercel/insights/script.js"]'),
+  ).toHaveCount(1);
 });
 
 test("security headers are set on responses", async ({ request }) => {
