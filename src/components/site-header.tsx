@@ -1,7 +1,7 @@
 import Link from "next/link";
 
+import { Wordmark } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { site } from "@/content/site";
 
 export function SiteHeader() {
   return (
@@ -9,10 +9,10 @@ export function SiteHeader() {
       <div className="flex items-center justify-between gap-3 px-5 py-4">
         <Link
           href="/#top"
-          className="inline-flex items-baseline font-display text-2xl font-semibold tracking-[-0.045em]"
+          aria-label="TOGB — home"
+          className="inline-flex items-baseline"
         >
-          {site.wordmark}
-          <span className="text-link">.</span>
+          <Wordmark className="text-2xl" />
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-3">

@@ -9,6 +9,10 @@ export const size = {
 };
 export const contentType = "image/png";
 
+const paper = "#f2eee3";
+const signal = "#d95d39";
+const brass = "#b08a57";
+
 export default function Image() {
   return new ImageResponse(
     (
@@ -22,33 +26,33 @@ export default function Image() {
           position: "relative",
           overflow: "hidden",
           boxSizing: "border-box",
-          padding: "64px 72px",
-          background: "#2338e8",
-          color: "#f3f1ea",
+          padding: "58px 68px",
+          background: "linear-gradient(135deg, #1e3a31 0%, #0c110e 62%)",
+          color: paper,
           fontFamily: "sans-serif",
         }}
       >
         <div
           style={{
             position: "absolute",
-            top: -150,
-            right: -120,
-            width: 440,
-            height: 440,
+            top: -220,
+            right: -150,
+            width: 560,
+            height: 560,
             borderRadius: "50%",
-            background: "rgba(255, 92, 43, 0.18)",
+            background: "rgba(176, 138, 87, 0.14)",
             display: "flex",
           }}
         />
         <div
           style={{
             position: "absolute",
-            bottom: -220,
-            left: 280,
-            width: 420,
-            height: 420,
+            bottom: -280,
+            left: -160,
+            width: 620,
+            height: 620,
             borderRadius: "50%",
-            background: "rgba(109, 124, 255, 0.28)",
+            background: "rgba(217, 93, 57, 0.08)",
             display: "flex",
           }}
         />
@@ -62,77 +66,40 @@ export default function Image() {
             width: "100%",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-            <div
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: 18,
-                background: "#f3f1ea",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#2338e8",
-                fontSize: 48,
-                fontWeight: 900,
-                letterSpacing: "-0.08em",
-              }}
-            >
-              r<span style={{ color: "#ff5c2b" }}>.</span>
-            </div>
-            <span
-              style={{
-                fontSize: 38,
-                fontWeight: 800,
-                letterSpacing: "-0.055em",
-              }}
-            >
-              {site.wordmark}
-            </span>
-          </div>
-
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-end",
-              gap: 6,
-              fontSize: 20,
-              color: "rgba(243, 241, 234, 0.76)",
-            }}
-          >
-            <span>{site.role}</span>
-            <span>{site.location}</span>
-          </div>
-        </div>
-
-        <div
-          style={{
-            position: "relative",
-            display: "flex",
-            flexDirection: "column",
-            gap: 22,
-            maxWidth: 980,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 82,
+              alignItems: "baseline",
+              fontSize: 48,
               fontWeight: 800,
-              lineHeight: 0.95,
-              letterSpacing: "-0.06em",
+              letterSpacing: "-0.055em",
+              lineHeight: 1,
             }}
           >
-            {site.tagline}
+            {site.wordmark}
+            <span style={{ color: signal }}>.</span>
           </div>
           <div
             style={{
-              fontSize: 24,
-              lineHeight: 1.35,
-              color: "rgba(243, 241, 234, 0.78)",
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              fontSize: 15,
+              fontWeight: 600,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "rgba(242, 238, 227, 0.68)",
             }}
           >
-            Fast, considered websites and web apps for small teams.
+            <div
+              style={{
+                width: 44,
+                height: 1,
+                background: brass,
+                display: "flex",
+              }}
+            />
+            {site.brandLine}
           </div>
         </div>
 
@@ -141,23 +108,140 @@ export default function Image() {
             position: "relative",
             display: "flex",
             alignItems: "center",
-            gap: 14,
-            fontSize: 20,
-            color: "rgba(243, 241, 234, 0.76)",
+            justifyContent: "space-between",
+            gap: 56,
+            width: "100%",
           }}
         >
           <div
             style={{
-              width: 60,
-              height: 4,
-              borderRadius: 999,
-              background: "#ff5c2b",
               display: "flex",
+              flexDirection: "column",
+              gap: 26,
+              maxWidth: 690,
             }}
-          />
-          <span>
-            {site.name} · {site.shortLocation}
-          </span>
+          >
+            <div
+              style={{
+                fontSize: 82,
+                fontWeight: 800,
+                lineHeight: 0.94,
+                letterSpacing: "-0.06em",
+              }}
+            >
+              {site.tagline}
+            </div>
+            <div
+              style={{
+                fontSize: 23,
+                lineHeight: 1.4,
+                color: "rgba(242, 238, 227, 0.76)",
+              }}
+            >
+              Independent web developer. Fast, considered websites and web apps
+              for small teams.
+            </div>
+          </div>
+
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              flexShrink: 0,
+              width: 258,
+              height: 318,
+              borderRadius: 30,
+              border: "1px solid rgba(242, 238, 227, 0.22)",
+              background: "rgba(242, 238, 227, 0.04)",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: 22,
+                left: 24,
+                display: "flex",
+                fontSize: 10,
+                fontWeight: 600,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                color: "rgba(242, 238, 227, 0.5)",
+              }}
+            >
+              Original / 01
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: 148,
+                  height: 36,
+                  borderRadius: 7,
+                  background: paper,
+                  display: "flex",
+                }}
+              />
+              <div
+                style={{
+                  width: 42,
+                  height: 118,
+                  borderRadius: 7,
+                  background: paper,
+                  display: "flex",
+                }}
+              />
+            </div>
+            <div
+              style={{
+                position: "absolute",
+                right: 32,
+                bottom: 32,
+                width: 18,
+                height: 18,
+                borderRadius: 4,
+                background: signal,
+                display: "flex",
+              }}
+            />
+          </div>
+        </div>
+
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            paddingTop: 22,
+            borderTop: "1px solid rgba(242, 238, 227, 0.18)",
+            fontSize: 17,
+            color: "rgba(242, 238, 227, 0.66)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: "#b9d6b4",
+                display: "flex",
+              }}
+            />
+            {site.role} · {site.shortLocation}
+          </div>
+          <div style={{ display: "flex", color: "rgba(242, 238, 227, 0.5)" }}>
+            Est. {site.established} · {site.name}
+          </div>
         </div>
       </div>
     ),

@@ -1,7 +1,7 @@
-# Reeper — freelance portfolio
+# TOGB — The Original Brand
 
-A portfolio for an independent web developer. The homepage is a focused
-introduction; [`/work`](src/app/work/page.tsx) is the complete, server-rendered
+The portfolio for TOGB, an independent web studio in Gauteng. The homepage is
+a focused introduction; [`/work`](src/app/work/page.tsx) is the complete, server-rendered
 index of public projects. Every project row links straight to its live Vercel
 deploy, and the editable content lives in a small set of files so the site is
 quick to make yours.
@@ -38,7 +38,8 @@ NEXT_PUBLIC_CONTACT_EMAIL=hello@yourdomain.com
 drives canonical URLs, the sitemap, robots, Open Graph/Twitter metadata, and
 JSON-LD. Until it is set, the build uses `https://example.com` as an obvious
 placeholder. `NEXT_PUBLIC_CONTACT_EMAIL` controls the public address in the
-contact panel, footer, and structured data.
+contact panel and structured data. The WhatsApp number is in
+`site.whatsapp` in `src/content/site.ts`.
 
 Fill in the Resend values too if you want the contact form to send mail; the
 rest of the site runs without them.
@@ -70,7 +71,7 @@ Copy [`.env.example`](.env.example) to `.env.local` and set:
 ```bash
 RESEND_API_KEY=re_...
 CONTACT_TO_EMAIL=you@gmail.com
-RESEND_FROM_EMAIL="Reeper <hello@yourdomain.com>"
+RESEND_FROM_EMAIL="TOGB <hello@yourdomain.com>"
 ```
 
 - `RESEND_API_KEY` comes from [resend.com/api-keys](https://resend.com/api-keys).
@@ -81,7 +82,7 @@ RESEND_FROM_EMAIL="Reeper <hello@yourdomain.com>"
 
 The form’s success and validation states are client-side; the API validates
 again on the server and caps request bodies at 20 KB. The notification email
-uses the fixed paper, ink, blue, and signal palette because email clients do not
+uses the fixed paper, ink, forest, bone, and signal palette because email clients do not
 support the site’s CSS variables. The public address comes from
 `NEXT_PUBLIC_CONTACT_EMAIL` and is separate from the form destination, so it can
 be changed independently.
@@ -102,29 +103,31 @@ shell, footer, and typography through
 listed in `sitemap.xml`.
 
 The privacy policy describes the current data flow: inquiry details go to the
-configured inbox through Resend, the site is hosted on Vercel, Vercel Web
-Analytics collects cookieless aggregate page views, there is no advertising
-tracking, and the theme preference stays in browser local storage. It covers
-POPIA, the Information Regulator, retention, cross-border processing, and
-visitor rights. The terms cover acceptable use, intellectual property,
-inquiries, warranties, liability, and South African governing law.
+configured inbox through Resend, WhatsApp messages go through Meta’s WhatsApp
+service, the site is hosted on Vercel, Vercel Web Analytics collects cookieless
+aggregate page views, there is no advertising tracking, and the theme preference
+stays in browser local storage. It covers POPIA, the Information Regulator,
+retention, cross-border processing, and visitor rights. The terms cover
+acceptable use, intellectual property, inquiries, warranties, liability, and
+South African governing law.
 
 These are plain-language starting points, not legal advice. Review both pages
 with a South African lawyer before launch, and update them if the data flow
 changes (for example, changing analytics, a CMS, or a different email provider).
-The contact address on both pages comes from `NEXT_PUBLIC_CONTACT_EMAIL`; set it
-to an address you actually read before launch.
+The contact email on both pages comes from `NEXT_PUBLIC_CONTACT_EMAIL`; set it
+to an address you actually read before launch. The WhatsApp number comes from
+`site.whatsapp`.
 
 ## Make it yours
 
 Core data lives in [`src/content/site.ts`](src/content/site.ts); the longer
 prose lives with its section.
 
-1. **Identity** — change `name`, `wordmark`, `role`, `tagline`, `location`,
-   social links, and availability in `site.ts`. The public email and site origin
-   are environment-driven; see [SEO and metadata](#seo-and-metadata). The blue
-   and orange sidebar mark lives in
-   [`src/components/logo.tsx`](src/components/logo.tsx).
+1. **Identity** — change `name`, `wordmark`, `brandLine`, `legalName`, `role`,
+   `tagline`, `location`, social links, the WhatsApp number, and availability in
+   `site.ts`. The public email and site origin are environment-driven; see
+   [SEO and metadata](#seo-and-metadata). The forest, bone, and signal sidebar
+   mark lives in [`src/components/logo.tsx`](src/components/logo.tsx).
 2. **Work** — edit [`src/content/projects.ts`](src/content/projects.ts). It
    contains all 37 projects pulled from Vercel: 19 published rows and 18
    skipped records. Add a project by moving it into `publishedProjects`, adding
@@ -133,23 +136,21 @@ prose lives with its section.
    server-renders the full published index.
 3. **Services** — edit `services` with your actual offers and timelines.
 4. **Testimonials** — edit the `testimonials` array in
-   [`src/content/site.ts`](src/content/site.ts). All three entries are currently
-   sample slides, including their star ratings, and are marked `Sample` in the
-   carousel. Replace the quotes, portraits, names, and ratings with real client
-   material you have permission to use, or delete the `<TestimonialSection />`
-   line from `src/app/page.tsx`. Portraits live in `public/testimonials/`; the
-   current images are free Pravatar placeholders. The carousel auto-advances,
-   pauses on hover or keyboard focus, and stops automatically when the visitor
-   prefers reduced motion. The sample ratings are visual only: review structured
-   data is emitted only for non-placeholder entries, never for fabricated data.
+   [`src/content/site.ts`](src/content/site.ts). It is empty by default, so the
+   section stays hidden until you add real client material you have permission
+   to publish. Add the exact quote, name, and role; `image`, `rating`, and
+   `source` are optional, and you should omit any rating the client did not give.
+   The section is server-rendered, so the quote is crawlable and needs no
+   carousel JavaScript. Review structured data is emitted only for the entries
+   you add; there are no sample reviews in the codebase.
 5. **Hero and about prose** — the headline and intro are in
    [`src/components/hero.tsx`](src/components/hero.tsx); the bio is in
    [`src/components/about.tsx`](src/components/about.tsx); the contact copy is
    in [`src/components/contact.tsx`](src/components/contact.tsx).
-6. **Portrait** — the blue monogram block in
-   [`src/components/about.tsx`](src/components/about.tsx) is a designed
-   placeholder. Swap it for a photo with `next/image`, and give the image
-   meaningful alt text.
+6. **Portrait** — the anime-style portrait in
+   [`src/components/about.tsx`](src/components/about.tsx) uses
+   `public/images/togb-portrait-anime.webp`. Replace it when the portrait changes
+   and update the alt text in `site.portrait.alt`.
 7. **Metadata and SEO** — set `NEXT_PUBLIC_SITE_URL` and
    `NEXT_PUBLIC_CONTACT_EMAIL`, then adjust the title, description, and social
    copy in [`src/app/layout.tsx`](src/app/layout.tsx) and
@@ -165,7 +166,7 @@ The public SEO surface is environment-driven and covered by Playwright:
 
 - `NEXT_PUBLIC_SITE_URL` becomes `metadataBase` and the origin for canonical
   links, `sitemap.xml`, `robots.txt`, Open Graph/Twitter images, and JSON-LD.
-- `NEXT_PUBLIC_CONTACT_EMAIL` is the public email in the page, footer, and
+- `NEXT_PUBLIC_CONTACT_EMAIL` is the public email in the contact panel and
   `Person`/`ProfessionalService` schema. Vercel production builds fail fast if
   either public value is missing.
 - `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` and
@@ -176,12 +177,16 @@ The public SEO surface is environment-driven and covered by Playwright:
   `public/og.jpg` to keep in sync.
 - [`src/lib/structured-data.ts`](src/lib/structured-data.ts) emits shared
   `WebSite`, `Person`, and `ProfessionalService` nodes in the layout. The home
-  page adds its own `WebPage` node; `/work` adds a `CollectionPage` with an
-  `ItemList` of every published project, and legal pages add `BreadcrumbList`
-  schema.
-- Review and `AggregateRating` schema is emitted only for testimonials where
-  `placeholder` is `false`. The current sample ratings are deliberately
-  excluded, so no fabricated review markup can ship.
+  page adds its own `WebPage` and `FAQPage` nodes; `/work` adds a
+  `CollectionPage` with an `ItemList` of every published project, and legal
+  pages add `BreadcrumbList` schema. The service node includes the WhatsApp
+  telephone number, a `ContactPoint`, the logo, and the founding date.
+- Review and `AggregateRating` schema is emitted only for real testimonials in
+  `site.ts`. The array ships empty, so no fabricated review markup can ship.
+- The visible FAQ is sourced from `faqs` in `site.ts`; the same content feeds
+  the `FAQPage` schema. Keep the two in sync.
+- A dated SEO audit and content roadmap live in
+  [`docs/seo/2026-10-29-seo-audit.md`](docs/seo/2026-10-29-seo-audit.md).
 - `/work` is a server-rendered, canonical page listing every published project;
   the homepage links to it. `sitemap.xml` includes home, work, legal pages, and
   project images, with the legal pages using `site.legalUpdatedIso` rather than
@@ -219,8 +224,8 @@ call is needed.
 
 The tokens in [`src/app/globals.css`](src/app/globals.css) are layered:
 
-- **Brand constants** in `@theme`: paper, ink, blue, ice, signal. These are fixed
-  reference colors.
+- **Brand constants** in `@theme`: paper, ink, forest, brass, bone, signal,
+  sage. These are fixed reference colors.
 - **Semantic tokens** in `:root` and `.dark`: background, foreground, card,
   secondary, muted, primary, border, link, on-brand.
 - **Component tokens** from shadcn/ui: radius, input, ring, etc.
@@ -254,9 +259,9 @@ Display type is Bricolage Grotesque; text type is Instrument Sans.
   local time, and the theme toggle.
 - The mobile header keeps the compact nav and the theme toggle.
 - The footer is a theme-aware rounded card with the wordmark, a unique tagline,
-  the canonical GitHub/LinkedIn links, copyright, and Privacy Policy/Terms of
-  Use links. It deliberately does not repeat the availability, location, or
-  local-time copy from the rest of the page.
+  GitHub and WhatsApp links, copyright, and Privacy Policy/Terms of Use links.
+  It deliberately does not repeat the availability, location, or local-time
+  copy from the rest of the page.
 - The floating back-to-top button is global. It appears after 600px of scroll,
   uses reduced-motion-aware scrolling, and is hidden at the top of the page.
 
@@ -265,11 +270,10 @@ Display type is Bricolage Grotesque; text type is Instrument Sans.
 `pnpm test:e2e` runs four Playwright projects: desktop light, desktop dark,
 mobile light, and mobile dark. The suite covers theme persistence, pagination
 focus and announcements, the floating top button, social/contact link dedupe,
-the testimonial carousel’s portraits and manual controls, auto-advance and
-pause timing, reduced-motion behavior, the sidebar Studio card, contact-form
+static testimonial rendering, FAQ content, the sidebar Studio card, contact-form
 labels and validation, a mocked successful submission, API
 validation/honeypot/cross-origin handling, legal-page content and footer links,
-canonical/social metadata, JSON-LD without fabricated reviews, sitemap/robots/
+canonical/social metadata, JSON-LD for approved reviews only, sitemap/robots/
 manifest output, security headers, the server-rendered `/work` index, a 320px
 no-horizontal-overflow check, and axe scans for serious or critical WCAG A/AA
 violations. On failure, CI uploads the Playwright report as an artifact.
@@ -298,18 +302,24 @@ explicitly approved step.
 - [ ] Set `NEXT_PUBLIC_SITE_URL` to the production origin and
       `NEXT_PUBLIC_CONTACT_EMAIL` to a mailbox you actually read
 - [ ] Set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` and/or
-      `NEXT_PUBLIC_BING_SITE_VERIFICATION` if you use Search Console
-- [ ] Replace all sample testimonial slides and their made-up ratings, and swap
-      the Pravatar portraits for real client photos and verified ratings (with
-      permission)
-- [ ] Remove the testimonial section if there are no real quotes to show
+      `NEXT_PUBLIC_BING_SITE_VERIFICATION`, verify the domain in Google Search
+      Console and Bing Webmaster Tools, and submit `sitemap.xml`
+- [ ] Add at least one real client testimonial (with permission) to
+      `testimonials`; the section stays hidden while the array is empty
+- [ ] Claim or create a Google Business Profile, keep the name, Gauteng service
+      area, email, and WhatsApp number consistent, and ask real clients for
+      reviews there
+- [ ] Publish a detailed services page or case studies for the work you want to
+      rank for; the homepage alone cannot compete for broad local keywords
+- [ ] Review [`docs/seo/2026-10-29-seo-audit.md`](docs/seo/2026-10-29-seo-audit.md)
+      and work through the content and off-page roadmap
 - [ ] Verify a sending domain in Resend and replace `onboarding@resend.dev`
       with that address before relying on the contact form in production
 - [ ] Send one test inquiry through the form and confirm it reaches
       `CONTACT_TO_EMAIL`
 - [ ] Add an edge rate limit or CAPTCHA to `/api/contact`
 - [ ] Review the privacy policy and terms with a South African lawyer
-- [ ] Replace the monogram with a real portrait
+- [x] Replace the monogram with the anime-style portrait
 - [ ] Review the generated Open Graph/Twitter card and update the copy in
       `src/app/opengraph-image.tsx` if needed
 - [ ] Bump `site.contentUpdated` when the work or copy changes
@@ -375,29 +385,31 @@ src/
     site-footer.tsx   theme-aware footer card
     scroll-to-top.tsx floating back-to-top control (client)
     theme-provider.tsx / theme-toggle.tsx
-    hero.tsx
+    hero.tsx           generated monolith hero
     work.tsx          work section wrapper, counts, all-work link
     work-grid.tsx     paginated project rows (client)
     services.tsx
     about.tsx
-    testimonial-section.tsx
+    testimonial-section.tsx  static, permissioned client quotes
+    faq.tsx           visible FAQ sourced from site.ts
     contact.tsx       contact section
     contact-form.tsx  validated brief form (client)
-    clock.tsx         live Johannesburg time (client)
+    clock.tsx         live South Africa time (client)
     copy-email.tsx    copy-to-clipboard button (client)
     ui/               shadcn/ui primitives
   lib/
     contact-schema.ts shared zod schema and field errors
     email/contact-inquiry.ts  table-based HTML and text email
     seo.ts            absolute URL, host, and social image helpers
-    structured-data.ts  site, work, and breadcrumb JSON-LD
+    structured-data.ts  site, work, FAQ, and breadcrumb JSON-LD
     utils.ts          app-level cn helper
   content/
-    site.ts           identity, navigation, services, tools
+    site.ts           identity, navigation, services, tools, FAQ, testimonials
     projects.ts       Vercel snapshot, published rows, skipped records
 e2e/
   portfolio.spec.ts   browser, theme, and axe coverage
 playwright.config.ts  four desktop/mobile light/dark projects
 public/
+  images/             generated hero and anime portrait artwork
   projects/           committed project screenshots
 ```

@@ -1,6 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
+import { testimonials } from "../src/content/site";
+
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 const expectedSiteOrigin = configuredSiteUrl
   ? new URL(configuredSiteUrl).origin
@@ -53,8 +55,8 @@ test("dark-mode select options use readable card colors", async ({ page }) => {
   await page.reload();
 
   const option = page.locator('select[name="projectType"] option').nth(1);
-  await expect(option).toHaveCSS("background-color", "rgb(22, 21, 27)");
-  await expect(option).toHaveCSS("color", "rgb(243, 241, 234)");
+  await expect(option).toHaveCSS("background-color", "rgb(20, 27, 23)");
+  await expect(option).toHaveCSS("color", "rgb(242, 238, 227)");
 });
 
 test("work pagination keeps focus and live announcements", async ({ page }) => {
@@ -93,19 +95,33 @@ test("floating back-to-top responds to scroll", async ({ page }) => {
 
 test("social and contact links appear exactly once", async ({ page }, testInfo) => {
   await expect(page.locator('a[href*="github.com"]')).toHaveCount(1);
-  await expect(page.locator('a[href*="linkedin.com"]')).toHaveCount(1);
+  await expect(page.locator('a[href*="linkedin.com"]')).toHaveCount(0);
+  await expect(page.locator('a[href*="wa.me"]')).toHaveCount(2);
   await expect(page.locator('a[href^="mailto:"]')).toHaveCount(1);
 
   const footer = page.locator('footer[aria-labelledby="footer-heading"]');
-  const socialLinks = footer
-    .getByRole("navigation", { name: "Social links" })
+  const connectLinks = footer
+    .getByRole("navigation", { name: "Connect links" })
     .getByRole("link");
+  const hoverBackground = testInfo.project.name.includes("dark")
+    ? "rgb(63, 107, 88)"
+    : "rgb(30, 58, 49)";
   const legalLinks = footer
     .getByRole("navigation", { name: "Legal" })
     .getByRole("link");
 
-  await expect(socialLinks).toHaveCount(2);
+  await expect(connectLinks).toHaveCount(2);
+  await expect(
+    connectLinks.filter({ hasText: "GitHub" }),
+  ).toHaveAttribute("href", "https://github.com/reeperx");
+  await expect(
+    connectLinks.filter({ hasText: "WhatsApp" }),
+  ).toHaveAttribute("href", "https://wa.me/27717884230");
+  await expect(
+    page.locator('#contact a[href="https://wa.me/27717884230"]'),
+  ).toContainText("071 788 4230");
   await expect(legalLinks).toHaveCount(2);
+  await expect(footer.getByText(/The Original Brand/)).toBeVisible();
   await expect(
     legalLinks.filter({ hasText: "Privacy Policy" }),
   ).toHaveAttribute("href", "/privacy");
@@ -115,14 +131,14 @@ test("social and contact links appear exactly once", async ({ page }, testInfo) 
   );
   await expect(footer).not.toContainText("Built with Next.js");
   await expect(footer).not.toContainText("Available for Q4 2026");
-  await expect(footer).not.toContainText("Johannesburg");
+  await expect(footer).not.toContainText("Gauteng");
   await expect(footer).not.toContainText("SAST");
 
   if (!testInfo.project.name.startsWith("mobile")) {
-    for (const link of await socialLinks.all()) {
+    for (const link of await connectLinks.all()) {
       await link.hover();
-      await expect(link).toHaveCSS("background-color", "rgb(35, 56, 232)");
-      await expect(link).toHaveCSS("color", "rgb(243, 241, 234)");
+      await expect(link).toHaveCSS("background-color", hoverBackground);
+      await expect(link).toHaveCSS("color", "rgb(242, 238, 227)");
     }
   }
 });
@@ -193,8 +209,8 @@ test("robots and manifest expose crawl and install metadata", async ({
     start_url?: string;
     icons?: Array<{ src?: string }>;
   };
-  expect(manifest.name).toContain("Reeper");
-  expect(manifest.short_name).toBe("Reeper");
+  expect(manifest.name).toContain("TOGB");
+  expect(manifest.short_name).toBe("TOGB");
   expect(manifest.start_url).toBe("/");
   expect(manifest.icons?.[0]?.src).toBe("/icon.svg");
 });
@@ -209,9 +225,10 @@ test("homepage exposes complete canonical and social metadata", async ({
   expect(canonical).not.toBeNull();
   expect(new URL(canonical!).pathname).toBe("/");
 
+  await expect(page).toHaveTitle(/Web Developer in Gauteng/i);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
-    /Independent web developer in Johannesburg/,
+    /websites and web apps for small teams in Gauteng/i,
   );
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
     "content",
@@ -219,7 +236,7 @@ test("homepage exposes complete canonical and social metadata", async ({
   );
   await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
     "content",
-    "Reeper",
+    "TOGB",
   );
   await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute(
     "content",
@@ -251,7 +268,30 @@ test("homepage exposes complete canonical and social metadata", async ({
   expect(twitterImage.headers()["content-type"]).toContain("image/png");
 });
 
-test("structured data describes the studio without sample reviews", async ({
+test("hero artwork and anime portrait use the generated assets", async ({
+  page,
+}) => {
+  const heroImage = page
+    .locator('section[aria-labelledby="hero-title"] img')
+    .first();
+  await expect(heroImage).toHaveAttribute("src", /togb-hero/);
+  await expect
+    .poll(async () =>
+      heroImage.evaluate((image) => (image as HTMLImageElement).naturalWidth),
+    )
+    .toBeGreaterThan(0);
+
+  await page.locator("#about").scrollIntoViewIfNeeded();
+  const portrait = page.locator("#about img");
+  await expect(portrait).toHaveAttribute("src", /togb-portrait-anime/);
+  await expect
+    .poll(async () =>
+      portrait.evaluate((image) => (image as HTMLImageElement).naturalWidth),
+    )
+    .toBeGreaterThan(0);
+});
+
+test("structured data describes the studio and only approved reviews", async ({
   page,
 }) => {
   const payloads = await page
@@ -259,10 +299,17 @@ test("structured data describes the studio without sample reviews", async ({
     .evaluateAll((nodes) =>
       nodes.map((node) => JSON.parse(node.textContent ?? "{}")),
     );
-  const graph = payloads.flatMap(
-    (payload: { "@graph"?: Array<Record<string, unknown>> }) =>
-      payload["@graph"] ?? [payload],
-  );
+  const graph = payloads.flatMap((payload) => {
+    if (Array.isArray(payload)) {
+      return payload as Array<Record<string, unknown>>;
+    }
+
+    const entry = payload as {
+      "@graph"?: Array<Record<string, unknown>>;
+    };
+
+    return entry["@graph"] ?? [entry];
+  });
   const types = graph.map((entry) => entry["@type"]);
 
   expect(types).toEqual(
@@ -271,12 +318,12 @@ test("structured data describes the studio without sample reviews", async ({
       "Person",
       "ProfessionalService",
       "WebPage",
+      "FAQPage",
     ]),
   );
 
   const serialized = JSON.stringify(payloads);
-  expect(serialized).not.toContain('"Review"');
-  expect(serialized).not.toContain('"AggregateRating"');
+  expect(serialized).not.toContain("Sample");
 
   const service = graph.find(
     (entry) => entry["@type"] === "ProfessionalService",
@@ -284,10 +331,47 @@ test("structured data describes the studio without sample reviews", async ({
     | {
         hasOfferCatalog?: { itemListElement?: unknown[] };
         slogan?: string;
+        telephone?: string;
+        logo?: string;
+        contactPoint?: { telephone?: string };
+        review?: Array<{
+          reviewBody?: string;
+          author?: { name?: string };
+        }>;
+        aggregateRating?: { reviewCount?: number };
       }
     | undefined;
   expect(service?.slogan).toBe("Websites built to earn their keep.");
+  expect(service?.telephone).toBe("+27717884230");
+  expect(service?.logo).toContain("/icon.svg");
+  expect(service?.contactPoint?.telephone).toBe("+27717884230");
   expect(service?.hasOfferCatalog?.itemListElement?.length).toBeGreaterThan(0);
+
+  const reviews = service?.review ?? [];
+  expect(reviews).toHaveLength(testimonials.length);
+
+  if (testimonials.length === 0) {
+    expect(serialized).not.toContain('"Review"');
+    expect(serialized).not.toContain('"AggregateRating"');
+  } else {
+    expect(reviews[0]?.reviewBody).toBe(testimonials[0].quote);
+    expect(reviews[0]?.author?.name).toBe(testimonials[0].name);
+
+    const ratedCount = testimonials.filter(
+      (testimonial) => typeof testimonial.rating === "number",
+    ).length;
+
+    if (ratedCount > 0) {
+      expect(service?.aggregateRating?.reviewCount).toBe(ratedCount);
+    } else {
+      expect(service?.aggregateRating).toBeUndefined();
+    }
+  }
+
+  const faq = graph.find((entry) => entry["@type"] === "FAQPage") as
+    | { mainEntity?: unknown[] }
+    | undefined;
+  expect(faq?.mainEntity?.length).toBeGreaterThan(0);
 });
 
 test("Vercel Web Analytics is wired into the app", async ({ page }) => {
@@ -406,133 +490,28 @@ test("homepage links to the complete work index", async ({ page }) => {
   await expect(page).toHaveURL(/\/work$/);
 });
 
-test("testimonial carousel pairs portraits with names and navigates", async ({
-  page,
-}) => {
-  const carousel = page.getByRole("region", { name: "What clients say" });
-  const slides = carousel.locator('[aria-roledescription="slide"]');
-  const firstSlide = slides.nth(0);
-  const secondSlide = slides.nth(1);
+test("testimonials show only approved client content", async ({ page }) => {
+  const testimonials = page.getByRole("region", { name: "What clients say" });
 
-  await expect(firstSlide).toHaveAttribute("aria-hidden", "false");
-  await expect(secondSlide).toHaveAttribute("aria-hidden", "true");
+  if ((await testimonials.count()) === 0) {
+    await expect(page.getByText("Sample", { exact: true })).toHaveCount(0);
+    return;
+  }
 
-  const portrait = firstSlide.locator("img");
-  await expect(portrait).toHaveAttribute("src", /portrait-1\.jpg/);
-  await expect(firstSlide.getByText("Sample", { exact: true })).toBeVisible();
-  await expect(
-    firstSlide.getByRole("img", { name: "Rated 5 out of 5" }),
-  ).toBeVisible();
-
-  const imageBox = await portrait.boundingBox();
-  const nameBox = await firstSlide
-    .getByText("Thandi M.", { exact: true })
-    .boundingBox();
-  expect(imageBox).not.toBeNull();
-  expect(nameBox).not.toBeNull();
-  expect(imageBox!.x).toBeLessThan(nameBox!.x);
-
-  await carousel.getByRole("button", { name: "Next testimonial" }).click();
-
-  await expect(firstSlide).toHaveAttribute("aria-hidden", "true");
-  await expect(secondSlide).toHaveAttribute("aria-hidden", "false");
-  await expect(secondSlide.getByText("Sample", { exact: true })).toBeVisible();
-
-  await carousel
-    .getByRole("button", { name: "Show testimonial 1 of 3" })
-    .click();
-
-  await expect(firstSlide).toHaveAttribute("aria-hidden", "false");
-  await expect(secondSlide).toHaveAttribute("aria-hidden", "true");
+  await expect(testimonials).toBeVisible();
+  await expect(testimonials.locator("blockquote")).not.toHaveCount(0);
+  await expect(testimonials.getByText("Sample", { exact: true })).toHaveCount(
+    0,
+  );
 });
 
-test("testimonial carousel auto-advances, pauses, and explicitly restarts", async ({
-  page,
-}, testInfo) => {
-  test.skip(
-    testInfo.project.name !== "desktop-light",
-    "Timing coverage runs once.",
-  );
-  test.slow();
+test("FAQ answers common search questions", async ({ page }) => {
+  const faq = page.getByRole("region", { name: "Questions, answered" });
+  await expect(faq).toBeVisible();
+  await expect(faq.locator("details")).toHaveCount(7);
 
-  const carousel = page.getByRole("region", { name: "What clients say" });
-  const slides = carousel.locator('[aria-roledescription="slide"]');
-  const slide = (number: number) => slides.nth(number - 1);
-
-  await expect(slide(1)).toHaveAttribute("aria-hidden", "false");
-  await expect(
-    carousel.getByRole("button", { name: "Pause automatic rotation" }),
-  ).toBeVisible();
-
-  await expect(slide(2)).toHaveAttribute("aria-hidden", "false", {
-    timeout: 9000,
-  });
-
-  await carousel.hover();
-  await page.waitForTimeout(7000);
-  await expect(slide(2)).toHaveAttribute("aria-hidden", "false");
-
-  await page.mouse.move(0, 0);
-  await expect(slide(3)).toHaveAttribute("aria-hidden", "false", {
-    timeout: 9000,
-  });
-
-  const nextButton = carousel.getByRole("button", {
-    name: "Next testimonial",
-  });
-  await nextButton.focus();
-  await expect(nextButton).toBeFocused();
-  await page.waitForTimeout(7000);
-  await expect(slide(3)).toHaveAttribute("aria-hidden", "false");
-
-  await page.getByRole("heading", { level: 1 }).click();
-  await expect(nextButton).not.toBeFocused();
-  await page.waitForTimeout(7000);
-  await expect(slide(3)).toHaveAttribute("aria-hidden", "false");
-
-  await carousel
-    .getByRole("button", { name: "Pause automatic rotation" })
-    .click();
-  await expect(
-    carousel.getByRole("button", { name: "Start automatic rotation" }),
-  ).toBeVisible();
-  await page.waitForTimeout(7000);
-  await expect(slide(3)).toHaveAttribute("aria-hidden", "false");
-
-  await carousel
-    .getByRole("button", { name: "Start automatic rotation" })
-    .click();
-  await expect(slide(1)).toHaveAttribute("aria-hidden", "false", {
-    timeout: 9000,
-  });
-});
-
-test("testimonial carousel stays still when reduced motion is requested", async ({
-  page,
-}, testInfo) => {
-  test.skip(
-    testInfo.project.name !== "desktop-light",
-    "Reduced-motion coverage runs once.",
-  );
-  test.slow();
-
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.reload();
-
-  const carousel = page.getByRole("region", { name: "What clients say" });
-  const slides = carousel.locator('[aria-roledescription="slide"]');
-  const firstSlide = slides.nth(0);
-  const secondSlide = slides.nth(1);
-
-  await expect(
-    carousel.getByRole("button", { name: /automatic rotation/ }),
-  ).toHaveCount(0);
-
-  await page.waitForTimeout(7000);
-  await expect(firstSlide).toHaveAttribute("aria-hidden", "false");
-
-  await carousel.getByRole("button", { name: "Next testimonial" }).click();
-  await expect(secondSlide).toHaveAttribute("aria-hidden", "false");
+  await faq.getByText("How much does a website cost?").click();
+  await expect(faq.getByText(/fixed quote/i)).toBeVisible();
 });
 
 test("desktop sidebar uses icon navigation and a distinct studio card", async ({
@@ -546,11 +525,12 @@ test("desktop sidebar uses icon navigation and a distinct studio card", async ({
   const sidebar = page.locator("aside");
   await expect(sidebar).toBeVisible();
   await expect(
-    sidebar.getByRole("link", { name: "Reeper — home" }),
+    sidebar.getByRole("link", { name: /TOGB/ }),
   ).toBeVisible();
   await expect(
     sidebar.getByText("Websites built to earn their keep."),
   ).toBeVisible();
+  await expect(sidebar.getByText("The Original Brand")).toBeVisible();
 
   const nav = sidebar.getByRole("navigation", { name: "Primary" });
   await expect(nav.getByRole("link")).toHaveCount(4);

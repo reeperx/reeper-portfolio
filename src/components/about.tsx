@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { SectionHeading } from "@/components/section-heading";
 import { site, tools } from "@/content/site";
 
@@ -15,38 +17,54 @@ export function About() {
       />
 
       <div className="mt-12 grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-        <div
-          aria-hidden="true"
-          className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-primary grain-bg lg:sticky lg:top-10 lg:self-start"
-        >
-          <div className="absolute inset-4 rounded-xl border border-primary-foreground/20" />
-          <div className="absolute inset-0 flex flex-col justify-between p-8 text-primary-foreground">
-            <p className="text-sm text-primary-foreground/85">
-              {site.shortLocation}
-            </p>
-            <p className="font-display text-[clamp(9rem,18vw,15rem)] font-semibold leading-[0.65] tracking-[-0.09em]">
-              r<span className="text-signal">.</span>
-            </p>
-            <div className="flex items-end justify-between text-sm text-primary-foreground/85">
-              <span>{site.name}</span>
-              <span className="tabular">2026</span>
+        <figure className="lg:sticky lg:top-10 lg:self-start">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-forest ring-1 ring-border/80">
+            <Image
+              src={site.portrait.image}
+              alt={site.portrait.alt}
+              fill
+              sizes="(min-width: 1024px) 34vw, 100vw"
+              className="object-cover object-center"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(7,14,10,0.38)_0%,transparent_24%,transparent_62%,rgba(7,14,10,0.82)_100%)]"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-4 rounded-xl border border-paper/20"
+            />
+            <div className="absolute inset-0 flex flex-col justify-between p-7 text-paper sm:p-8">
+              <p className="text-[0.65rem] font-medium uppercase tracking-[0.22em] text-paper/75">
+                Original / 01
+              </p>
+              <div className="flex items-end justify-between gap-4 text-sm text-paper/85">
+                <span>{site.shortLocation}</span>
+                <span className="tabular">{site.established}—2026</span>
+              </div>
             </div>
           </div>
-        </div>
+          <figcaption className="mt-3 flex items-center justify-between gap-4 text-xs leading-relaxed text-muted-foreground">
+            <span>
+              The developer behind {site.name} in {site.shortLocation}.
+            </span>
+            <span className="tabular shrink-0">Est. {site.established}</span>
+          </figcaption>
+        </figure>
 
         <div>
           <p className="max-w-[52ch] text-xl leading-relaxed tracking-[-0.01em] sm:text-2xl sm:leading-[1.35]">
-            I’m {site.name}, a developer in {site.shortLocation}. For the past
-            eight years I’ve helped small teams ship websites and web apps that
-            are fast, accessible, and easy to keep running.
+            I’m the developer behind {site.name}, based in {site.shortLocation}.
+            For the past eight years I’ve helped small teams ship websites and
+            web apps that are fast, accessible, and easy to keep running.
           </p>
 
           <div className="mt-6 max-w-[60ch] space-y-4 text-[0.95rem] leading-relaxed text-muted-foreground">
             <p>
-              I work end to end: design, build, and deploy. No hand-offs, no
-              account manager, no six-week discovery phase. You get one person
-              who knows the whole thing, and a site you can maintain after I’m
-              gone.
+              {site.name} is deliberately small. I work end to end: design,
+              build, and deploy. No hand-offs, no account manager, no six-week
+              discovery phase. You get one person who knows the whole thing, and
+              a site you can maintain after I’m gone.
             </p>
             <p>
               Most of my work is for teams of one to twenty: e-commerce,

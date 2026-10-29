@@ -5,11 +5,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-paper: #f3f1ea;
-  --color-ink: #17140f;
-  --color-blue: #2338e8;
-  --color-ice: #eef0ff;
-  --color-signal: #ff5c2b;
+  --color-paper: #f2eee3;
+  --color-ink: #171612;
+  --color-forest: #1e3a31;
+  --color-brass: #b08a57;
+  --color-bone: #e7e0d1;
+  --color-signal: #d95d39;
+  --color-sage: #b9d6b4;
 
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -54,52 +56,52 @@
   color-scheme: light;
   --radius: 1rem;
 
-  --background: #f3f1ea;
-  --foreground: #17140f;
-  --card: #faf8f2;
-  --card-foreground: #17140f;
-  --popover: #faf8f2;
-  --popover-foreground: #17140f;
-  --primary: #2338e8;
-  --primary-foreground: #f3f1ea;
-  --secondary: #eef0ff;
-  --secondary-foreground: #17140f;
-  --muted: #e9e5db;
-  --muted-foreground: #5b564d;
-  --accent: #ff5c2b;
-  --accent-foreground: #17140f;
+  --background: #f2eee3;
+  --foreground: #171612;
+  --card: #faf7ef;
+  --card-foreground: #171612;
+  --popover: #faf7ef;
+  --popover-foreground: #171612;
+  --primary: #1e3a31;
+  --primary-foreground: #f2eee3;
+  --secondary: #e7e0d1;
+  --secondary-foreground: #171612;
+  --muted: #e6dfd1;
+  --muted-foreground: #5c574d;
+  --accent: #d95d39;
+  --accent-foreground: #171612;
   --destructive: #b42318;
-  --border: #d6d0c4;
-  --input: #d6d0c4;
-  --ring: #2338e8;
-  --link: #2338e8;
-  --on-brand: #f3f1ea;
-  --on-brand-muted: rgb(243 241 234 / 0.82);
+  --border: #d5cdbd;
+  --input: #d5cdbd;
+  --ring: #1e3a31;
+  --link: #1e3a31;
+  --on-brand: #f2eee3;
+  --on-brand-muted: rgb(242 238 227 / 0.82);
 }
 
 .dark {
   color-scheme: dark;
-  --background: #0c0b0f;
-  --foreground: #f3f1ea;
-  --card: #16151b;
-  --card-foreground: #f3f1ea;
-  --popover: #16151b;
-  --popover-foreground: #f3f1ea;
-  --primary: #2338e8;
-  --primary-foreground: #f3f1ea;
-  --secondary: #1e1d26;
-  --secondary-foreground: #f3f1ea;
-  --muted: #1a1921;
-  --muted-foreground: #aaa49a;
-  --accent: #ff6a3d;
-  --accent-foreground: #17140f;
+  --background: #0c110e;
+  --foreground: #f2eee3;
+  --card: #141b17;
+  --card-foreground: #f2eee3;
+  --popover: #141b17;
+  --popover-foreground: #f2eee3;
+  --primary: #3f6b58;
+  --primary-foreground: #f2eee3;
+  --secondary: #18231d;
+  --secondary-foreground: #f2eee3;
+  --muted: #171f1a;
+  --muted-foreground: #b8b2a5;
+  --accent: #e8794f;
+  --accent-foreground: #171612;
   --destructive: #ff6b6b;
-  --border: #2c2a34;
-  --input: #2c2a34;
-  --ring: #8b97ff;
-  --link: #9aa6ff;
-  --on-brand: #f3f1ea;
-  --on-brand-muted: rgb(243 241 234 / 0.82);
+  --border: #2b372f;
+  --input: #2b372f;
+  --ring: #a9c9b7;
+  --link: #a9c9b7;
+  --on-brand: #f2eee3;
+  --on-brand-muted: rgb(242 238 227 / 0.82);
 }
 
 @layer base {
@@ -197,6 +199,28 @@
 
 .fade {
   animation: fade 1.1s ease both;
+}
+
+@keyframes hero-drift {
+  from {
+    transform: scale(1.035);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.hero-media {
+  animation: hero-drift 30s var(--ease-out-expo) both;
+  transform-origin: 62% 50%;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-media {
+    animation: none;
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

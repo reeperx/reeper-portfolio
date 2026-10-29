@@ -1,14 +1,16 @@
 import Link from "next/link";
 
 import { ArrowUpRight } from "@/components/icons";
+import { Wordmark } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { site } from "@/content/site";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
-  const externalSocials = site.socials.filter((social) =>
-    social.href.startsWith("http"),
-  );
+  const connectLinks = [
+    ...site.socials.filter((social) => social.href.startsWith("http")),
+    site.whatsapp,
+  ];
 
   return (
     <footer
@@ -36,9 +38,12 @@ export function SiteFooter() {
 
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="font-display text-[clamp(3rem,9vw,6.5rem)] font-semibold leading-[0.82] tracking-[-0.06em]">
-                {site.wordmark}
-                <span className="text-link">.</span>
+              <p>
+                <Wordmark className="text-[clamp(3rem,9vw,6.5rem)] leading-[0.82] tracking-[-0.06em]" />
+              </p>
+              <p className="mt-4 flex items-center gap-3 text-[0.65rem] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                <span aria-hidden="true" className="h-px w-8 bg-signal" />
+                {site.brandLine} · Est. {site.established}
               </p>
               <p className="mt-4 max-w-[34ch] text-sm leading-relaxed text-muted-foreground">
                 Websites and web apps, built end to end for small teams.
@@ -46,10 +51,10 @@ export function SiteFooter() {
             </div>
 
             <nav
-              aria-label="Social links"
+              aria-label="Connect links"
               className="flex flex-wrap items-center gap-2"
             >
-              {externalSocials.map((social) => (
+              {connectLinks.map((social) => (
                 <Button
                   key={social.label}
                   asChild
@@ -63,6 +68,12 @@ export function SiteFooter() {
                     className="inline-flex items-center gap-1.5"
                   >
                     {social.label}
+                    {social.label === "WhatsApp" ? (
+                      <span className="hidden tabular sm:inline">
+                        {" "}
+                        · {site.whatsapp.number}
+                      </span>
+                    ) : null}
                     <ArrowUpRight className="size-3.5" />
                     <span className="sr-only"> (opens in a new tab)</span>
                   </a>

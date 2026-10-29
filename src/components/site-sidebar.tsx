@@ -8,7 +8,7 @@ import {
   ServicesIcon,
   WorkIcon,
 } from "@/components/icons";
-import { LogoMark } from "@/components/logo";
+import { LogoMark, Wordmark } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { site } from "@/content/site";
 import { cn } from "@/lib/utils";
@@ -41,16 +41,17 @@ export function SiteSidebar() {
       <div className="relative">
         <Link
           href="/#top"
-          aria-label={`${site.name} — home`}
           className="inline-flex w-fit items-center gap-3"
         >
           <LogoMark className="size-11 shrink-0" />
-          <span className="font-display text-3xl font-semibold tracking-[-0.045em]">
-            {site.wordmark}
-            <span className="text-link">.</span>
+          <span className="flex flex-col">
+            <Wordmark className="text-3xl" />
+            <span className="mt-1 text-[0.58rem] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+              {site.brandLine}
+            </span>
           </span>
         </Link>
-        <p className="mt-3 max-w-[14rem] text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-4 max-w-[14rem] text-sm leading-relaxed text-muted-foreground">
           {site.tagline}
         </p>
       </div>

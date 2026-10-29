@@ -1,5 +1,5 @@
 import { publishedProjects } from "@/content/projects";
-import { services, site, testimonials, tools } from "@/content/site";
+import { faqs, services, site, testimonials, tools } from "@/content/site";
 import { absoluteUrl } from "@/lib/seo";
 
 const rootUrl = absoluteUrl("/");
@@ -7,6 +7,8 @@ const websiteId = `${rootUrl}#website`;
 const personId = `${rootUrl}#person`;
 const serviceId = `${rootUrl}#professional-service`;
 const homePageId = `${rootUrl}#webpage`;
+const logoUrl = absoluteUrl("/icon.svg");
+const socialImageUrl = absoluteUrl("/opengraph-image");
 
 const socialUrls = site.socials
   .filter((social) => social.href.startsWith("http"))
@@ -14,13 +16,11 @@ const socialUrls = site.socials
 
 const postalAddress = {
   "@type": "PostalAddress",
-  addressLocality: site.shortLocation,
   addressRegion: "Gauteng",
   addressCountry: "ZA",
 } as const;
 
 const areaServed = [
-  { "@type": "City", name: site.shortLocation },
   { "@type": "AdministrativeArea", name: "Gauteng" },
   { "@type": "Country", name: "South Africa" },
 ] as const;
@@ -28,34 +28,39 @@ const areaServed = [
 const hasPlaceholderEmail = site.email.endsWith("@example.com");
 
 export function buildSiteGraph() {
-  const genuineTestimonials = testimonials.filter(
-    (testimonial) => !testimonial.placeholder,
-  );
-
-  const reviews = genuineTestimonials.map((testimonial) => ({
+  const reviews = testimonials.map((testimonial) => ({
     "@type": "Review",
     author: {
       "@type": "Person",
       name: testimonial.name,
     },
-    reviewRating: {
-      "@type": "Rating",
-      ratingValue: testimonial.rating,
-      bestRating: 5,
-      worstRating: 1,
-    },
+    ...(typeof testimonial.rating === "number"
+      ? {
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: testimonial.rating,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
     reviewBody: testimonial.quote,
+    ...(testimonial.source?.href ? { url: testimonial.source.href } : {}),
     itemReviewed: { "@id": serviceId },
   }));
 
+  const ratedTestimonials = testimonials.filter(
+    (testimonial) => typeof testimonial.rating === "number",
+  );
+
   const averageRating =
-    genuineTestimonials.length > 0
+    ratedTestimonials.length > 0
       ? Number(
           (
-            genuineTestimonials.reduce(
-              (total, testimonial) => total + testimonial.rating,
+            ratedTestimonials.reduce(
+              (total, testimonial) => total + (testimonial.rating ?? 0),
               0,
-            ) / genuineTestimonials.length
+            ) / ratedTestimonials.length
           ).toFixed(1),
         )
       : null;
@@ -64,14 +69,31 @@ export function buildSiteGraph() {
     "@type": "ProfessionalService",
     "@id": serviceId,
     name: `${site.name} — ${site.role}`,
-    alternateName: site.wordmark,
+    alternateName: site.brandLine,
     url: rootUrl,
     slogan: site.tagline,
     description: site.description,
+    brand: {
+      "@type": "Brand",
+      name: site.name,
+      slogan: site.brandLine,
+    },
+    logo: logoUrl,
+    image: socialImageUrl,
+    telephone: site.whatsapp.e164,
+    foundingDate: site.established,
     address: postalAddress,
     areaServed,
     founder: { "@id": personId },
     sameAs: socialUrls,
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: site.whatsapp.e164,
+      contactType: "sales",
+      areaServed: "ZA",
+      availableLanguage: ["English"],
+      ...(hasPlaceholderEmail ? {} : { email: site.email }),
+    },
     ...(hasPlaceholderEmail ? {} : { email: site.email }),
     hasOfferCatalog: {
       "@type": "OfferCatalog",
@@ -89,13 +111,13 @@ export function buildSiteGraph() {
         },
       })),
     },
-    ...(reviews.length > 0
+    ...(reviews.length > 0 ? { review: reviews } : {}),
+    ...(averageRating !== null
       ? {
-          review: reviews,
           aggregateRating: {
             "@type": "AggregateRating",
             ratingValue: averageRating,
-            reviewCount: reviews.length,
+            reviewCount: ratedTestimonials.length,
             bestRating: 5,
             worstRating: 1,
           },
@@ -111,6 +133,7 @@ export function buildSiteGraph() {
         "@id": websiteId,
         url: rootUrl,
         name: site.name,
+        alternateName: site.brandLine,
         description: site.description,
         inLanguage: "en-ZA",
         publisher: { "@id": personId },
@@ -119,12 +142,16 @@ export function buildSiteGraph() {
         "@type": "Person",
         "@id": personId,
         name: site.name,
+        alternateName: site.brandLine,
         url: rootUrl,
+        image: absoluteUrl(site.portrait.image),
         jobTitle: site.role,
         description: site.description,
+        telephone: site.whatsapp.e164,
         address: postalAddress,
         sameAs: socialUrls,
         knowsAbout: tools,
+        knowsLanguage: ["English"],
         worksFor: { "@id": serviceId },
         ...(hasPlaceholderEmail ? {} : { email: site.email }),
       },
@@ -156,7 +183,7 @@ export function buildWorkCollectionSchema() {
     url: absoluteUrl("/work"),
     name: `Selected work — ${site.name}`,
     description:
-      "A complete index of websites and web apps built by Reeper, an independent web developer in Johannesburg.",
+      "A complete index of websites and web apps built by TOGB, an independent web developer in Gauteng.",
     inLanguage: "en-ZA",
     isPartOf: { "@id": websiteId },
     about: { "@id": serviceId },
@@ -178,6 +205,22 @@ export function buildWorkCollectionSchema() {
         },
       })),
     },
+  };
+}
+
+export function buildFaqSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${rootUrl}#faq`,
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
   };
 }
 

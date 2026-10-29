@@ -7,7 +7,7 @@ import { openGraphImage, twitterImage } from "@/lib/seo";
 import { buildBreadcrumbSchema } from "@/lib/structured-data";
 
 const description =
-  "The terms that apply when you use Reeper’s portfolio and project inquiry form.";
+  "The terms that apply when you use TOGB’s portfolio and project inquiry form.";
 
 const canonical = new URL("/terms", site.url).toString();
 
@@ -49,18 +49,19 @@ export default function TermsPage() {
       >
         <LegalSection title="About this site">
           <p>
-            This is the portfolio and information site of {site.name}, an
-            independent web developer based in {site.location}. It is not an
-            online store. Nothing on the site is an offer capable of acceptance.
+            This is the portfolio and information site of {site.legalName}, an
+            independent web studio based in {site.location}. It is not an online
+            store. Nothing on the site is an offer capable of acceptance.
           </p>
         </LegalSection>
 
         <LegalSection title="Project inquiries">
           <p>
-            Sending the inquiry form starts a conversation; it does not create a
-            contract. Any project is governed by a separate written proposal or
-            agreement accepted by both sides. Prices, timelines, and
-            availability shown on the site are indicative and may change.
+            Sending the inquiry form or a WhatsApp message starts a
+            conversation; it does not create a contract. Any project is governed
+            by a separate written proposal or agreement accepted by both sides.
+            Prices, timelines, and availability shown on the site are indicative
+            and may change.
           </p>
         </LegalSection>
 
@@ -88,7 +89,7 @@ export default function TermsPage() {
 
         <LegalSection title="Third-party links">
           <p>
-            The site links to services such as GitHub, LinkedIn, Vercel, and
+            The site links to services such as GitHub, WhatsApp, Vercel, and
             Resend. I do not control those sites and am not responsible for
             their content, availability, or privacy practices. Their terms apply
             when you use them.

@@ -16,7 +16,7 @@ export function Contact() {
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -bottom-40 -left-24 size-[28rem] rounded-full bg-[#6d7cff]/30 blur-3xl"
+          className="pointer-events-none absolute -bottom-40 -left-24 size-[28rem] rounded-full bg-brass/25 blur-3xl"
         />
 
         <div className="relative mx-auto w-full max-w-6xl px-6 py-10 lg:px-12 lg:py-12">
@@ -50,10 +50,24 @@ export function Contact() {
                 <CopyEmail email={site.email} />
               </div>
 
+              <p className="mt-4 text-sm leading-relaxed text-on-brand-muted">
+                Or message me on{" "}
+                <a
+                  href={site.whatsapp.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium text-primary-foreground underline decoration-1 underline-offset-4 transition-colors hover:decoration-2"
+                >
+                  WhatsApp · {site.whatsapp.number}
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+                .
+              </p>
+
               <p className="mt-6 flex items-start gap-2 text-sm leading-relaxed text-on-brand-muted">
                 <span
                   aria-hidden="true"
-                  className="mt-1.5 size-2 shrink-0 rounded-full bg-[#8fe0b0]"
+                  className="mt-1.5 size-2 shrink-0 rounded-full bg-sage"
                 />
                 <span>
                   {site.availability}. {site.availabilityNote}
