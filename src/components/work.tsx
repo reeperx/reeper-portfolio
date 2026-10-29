@@ -1,4 +1,8 @@
+import Link from "next/link";
+
+import { ArrowRight } from "@/components/icons";
 import { SectionHeading } from "@/components/section-heading";
+import { Button } from "@/components/ui/button";
 import { WorkGrid } from "@/components/work-grid";
 import { publishedProjects, vercelProjectCount } from "@/content/projects";
 
@@ -19,6 +23,19 @@ export function Work() {
         projects={publishedProjects}
         totalVercelProjects={vercelProjectCount}
       />
+
+      <div className="mt-8">
+        <Button
+          asChild
+          variant="outline"
+          className="h-10 rounded-full border-border px-5 text-sm font-medium"
+        >
+          <Link href="/work">
+            View all {publishedProjects.length} projects
+            <ArrowRight className="size-4" />
+          </Link>
+        </Button>
+      </div>
     </section>
   );
 }

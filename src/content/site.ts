@@ -1,3 +1,25 @@
+const fallbackSiteUrl = "https://example.com";
+const fallbackEmail = "hello@example.com";
+
+function normalizeSiteUrl(value: string | undefined) {
+  const candidate = value?.trim();
+
+  if (!candidate) {
+    return fallbackSiteUrl;
+  }
+
+  try {
+    return new URL(candidate).origin;
+  } catch {
+    throw new Error(
+      "NEXT_PUBLIC_SITE_URL must be an absolute URL, for example https://reeper.dev.",
+    );
+  }
+}
+
+const siteUrl = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
+const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || fallbackEmail;
+
 export const site = {
   name: "Reeper",
   wordmark: "reeper",
@@ -6,18 +28,18 @@ export const site = {
   location: "Johannesburg, South Africa",
   shortLocation: "Johannesburg",
   timeZone: "Africa/Johannesburg",
-  // Reserved placeholder domain — replace before launch.
-  email: "hello@example.com",
-  url: "https://example.com",
+  email,
+  url: siteUrl,
   description:
     "Independent web developer in Johannesburg, building fast, considered websites and web apps for small teams.",
+  contentUpdated: "2026-10-29",
   legalUpdated: "27 October 2026",
   availability: "Available for Q4 2026",
   availabilityNote: "Taking on two new projects this quarter.",
   socials: [
     { label: "GitHub", href: "https://github.com/reeperx" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/reeperx" },
-    { label: "Email", href: "mailto:hello@example.com" },
+    { label: "Email", href: `mailto:${email}` },
   ],
   nav: [
     { label: "Work", href: "/#work" },
