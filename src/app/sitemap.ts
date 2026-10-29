@@ -26,13 +26,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/privacy"),
-      lastModified: site.contentUpdated,
+      lastModified: site.legalUpdatedIso,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: absoluteUrl("/terms"),
-      lastModified: site.contentUpdated,
+      lastModified: site.legalUpdatedIso,
       changeFrequency: "yearly",
       priority: 0.3,
     },
