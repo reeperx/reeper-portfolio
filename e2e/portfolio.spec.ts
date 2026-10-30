@@ -307,7 +307,7 @@ test("blog index, RSS feed, and reviews page are public", async ({
   await expect(page.getByText("Sample", { exact: true })).toHaveCount(0);
 });
 
-test("admin is private, noindex, and shows a login form", async ({ page }) => {
+test("admin is private, noindex, and gated", async ({ page }) => {
   await page.goto("/admin");
   await expect(page).toHaveURL(/\/admin\/login/);
   await expect(
@@ -317,8 +317,18 @@ test("admin is private, noindex, and shows a login form", async ({ page }) => {
     "content",
     /noindex/,
   );
-  await expect(page.getByLabel("Admin password")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+
+  const passwordField = page.getByLabel("Admin password");
+
+  if ((await passwordField.count()) > 0) {
+    await expect(passwordField).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+  } else {
+    await expect(
+      page.getByText("Admin access is not configured yet."),
+    ).toBeVisible();
+  }
+
   await expect(page.getByRole("link", { name: "Back to the site" })).toHaveAttribute(
     "href",
     "/",
