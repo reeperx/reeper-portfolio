@@ -213,7 +213,7 @@ export function ContactForm() {
           aria-live="polite"
           className="flex min-h-[22rem] flex-col justify-center py-4"
         >
-          <span className="flex size-12 items-center justify-center rounded-full bg-[#8fe0b0] text-[#0b3b24]">
+          <span className="flex size-12 items-center justify-center rounded-full bg-sage text-[#143024]">
             <Check className="size-5" />
           </span>
           <p className="mt-6 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground">

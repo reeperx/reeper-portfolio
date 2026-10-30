@@ -2,14 +2,14 @@ import { site } from "@/content/site";
 import type { ContactInquiry } from "@/lib/contact-schema";
 
 const colors = {
-  paper: "#f3f1ea",
-  ink: "#17140f",
-  blue: "#2338e8",
-  ice: "#eef0ff",
-  signal: "#ff5c2b",
-  card: "#faf8f2",
-  muted: "#5b564d",
-  border: "#ded8cb",
+  paper: "#f2eee3",
+  ink: "#171612",
+  forest: "#1e3a31",
+  bone: "#e7e0d1",
+  signal: "#d95d39",
+  card: "#faf7ef",
+  muted: "#5c574d",
+  border: "#d5cdbd",
 } as const;
 
 const fontBody =
@@ -46,7 +46,7 @@ function renderDetailRows(data: ContactInquiry) {
   return rows
     .map((row) => {
       const value = row.email
-        ? `<a href="mailto:${escapeHtml(row.value)}" style="color:${colors.blue};text-decoration:underline;text-underline-offset:2px;">${escapeHtml(row.value)}</a>`
+        ? `<a href="mailto:${escapeHtml(row.value)}" style="color:${colors.forest};text-decoration:underline;text-underline-offset:2px;">${escapeHtml(row.value)}</a>`
         : escapeHtml(oneLine(row.value));
 
       return `
@@ -106,10 +106,10 @@ export function renderContactInquiryEmail(data: ContactInquiry) {
             </tr>
 
             <tr>
-              <td class="email-hero" bgcolor="${colors.blue}" style="background-color:${colors.blue};border-radius:24px;padding:36px 34px 34px;">
-                <p style="margin:0 0 18px;font-family:${fontBody};font-size:11px;line-height:1.4;letter-spacing:0.2em;text-transform:uppercase;color:rgba(243,241,234,0.72);">New project inquiry</p>
+              <td class="email-hero" bgcolor="${colors.forest}" style="background-color:${colors.forest};border-radius:24px;padding:36px 34px 34px;">
+                <p style="margin:0 0 18px;font-family:${fontBody};font-size:11px;line-height:1.4;letter-spacing:0.2em;text-transform:uppercase;color:rgba(242,238,227,0.72);">New project inquiry</p>
                 <h1 class="email-title" style="margin:0;font-family:${fontDisplay};font-size:36px;line-height:1.02;font-weight:700;letter-spacing:-0.04em;color:${colors.paper};">${escapeHtml(projectType)}</h1>
-                <p style="margin:18px 0 0;font-family:${fontBody};font-size:15px;line-height:1.65;color:rgba(243,241,234,0.82);">From <strong style="color:${colors.paper};">${escapeHtml(name)}</strong>${company ? ` at <strong style="color:${colors.paper};">${escapeHtml(company)}</strong>` : ""}.</p>
+                <p style="margin:18px 0 0;font-family:${fontBody};font-size:15px;line-height:1.65;color:rgba(242,238,227,0.82);">From <strong style="color:${colors.paper};">${escapeHtml(name)}</strong>${company ? ` at <strong style="color:${colors.paper};">${escapeHtml(company)}</strong>` : ""}.</p>
               </td>
             </tr>
 
@@ -130,7 +130,7 @@ export function renderContactInquiryEmail(data: ContactInquiry) {
 
             <tr>
               <td style="padding-top:16px;">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${colors.ice}" style="background-color:${colors.ice};border-radius:24px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${colors.bone}" style="background-color:${colors.bone};border-radius:24px;">
                   <tr>
                     <td class="email-card" style="padding:30px 32px;">
                       <p style="margin:0 0 14px;font-family:${fontBody};font-size:11px;line-height:1.4;letter-spacing:0.18em;text-transform:uppercase;color:${colors.muted};">The brief</p>

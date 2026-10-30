@@ -188,6 +188,25 @@ export function WorkIcon({ className }: { className?: string }) {
   );
 }
 
+export function JournalIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      focusable="false"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      <path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4Z" />
+      <path d="M8 4v16M12 8h4M12 12h4" />
+    </svg>
+  );
+}
+
 export function ServicesIcon({ className }: { className?: string }) {
   return (
     <svg

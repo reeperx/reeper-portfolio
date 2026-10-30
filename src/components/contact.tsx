@@ -16,7 +16,7 @@ export function Contact() {
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -bottom-40 -left-24 size-[28rem] rounded-full bg-[#6d7cff]/30 blur-3xl"
+          className="pointer-events-none absolute -bottom-40 -left-24 size-[28rem] rounded-full bg-brass/25 blur-3xl"
         />
 
         <div className="relative mx-auto w-full max-w-6xl px-6 py-10 lg:px-12 lg:py-12">
@@ -40,20 +40,31 @@ export function Contact() {
               <p className="mt-8 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-on-brand-muted">
                 Prefer email?
               </p>
-              <div className="mt-3 flex flex-wrap items-center gap-4">
+              <div className="mt-3 flex max-w-full items-center gap-2 rounded-full border border-on-brand/25 bg-on-brand/[0.06] p-1.5 pl-4">
                 <a
                   href={`mailto:${site.email}`}
-                  className="max-w-full break-words font-display text-[clamp(1.1rem,2.5vw,1.8rem)] font-medium tracking-[-0.02em] underline decoration-1 underline-offset-[6px] transition-colors hover:decoration-2"
+                  className="min-w-0 truncate font-display text-[clamp(0.8rem,2.4vw,1.55rem)] font-medium tracking-[-0.02em] underline decoration-1 underline-offset-[5px] transition-colors hover:decoration-2"
                 >
                   {site.email}
                 </a>
                 <CopyEmail email={site.email} />
               </div>
 
+              <p className="mt-5 text-sm leading-relaxed text-on-brand-muted">
+                Worked together?{" "}
+                <a
+                  href="/reviews"
+                  className="font-medium text-primary-foreground underline decoration-1 underline-offset-4 transition-colors hover:decoration-2"
+                >
+                  Leave a client review
+                </a>
+                . Reviews are checked and published only with permission.
+              </p>
+
               <p className="mt-6 flex items-start gap-2 text-sm leading-relaxed text-on-brand-muted">
                 <span
                   aria-hidden="true"
-                  className="mt-1.5 size-2 shrink-0 rounded-full bg-[#8fe0b0]"
+                  className="mt-1.5 size-2 shrink-0 rounded-full bg-sage"
                 />
                 <span>
                   {site.availability}. {site.availabilityNote}

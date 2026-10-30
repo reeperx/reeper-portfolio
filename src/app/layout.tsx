@@ -5,10 +5,12 @@ import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
 
 import { JsonLd } from "@/components/json-ld";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { SiteChrome } from "@/components/site-chrome";
 import { SiteHeader } from "@/components/site-header";
 import { SiteSidebar } from "@/components/site-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { site } from "@/content/site";
+import { getApprovedReviews } from "@/lib/community-data";
 import { buildSiteGraph } from "@/lib/structured-data";
 
 import "./globals.css";
@@ -24,6 +26,8 @@ const sans = Instrument_Sans({
   variable: "--font-instrument",
   display: "swap",
 });
+
+const defaultTitle = `${site.name} — Web Developer in ${site.shortLocation} | Websites & Web Apps`;
 
 const googleVerification =
   process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
@@ -43,11 +47,11 @@ const verification =
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} — ${site.role} in ${site.shortLocation}`,
+    default: defaultTitle,
     template: `%s — ${site.name}`,
   },
   description: site.description,
-  applicationName: `${site.name} — ${site.role}`,
+  applicationName: `${site.name} — ${site.brandLine}`,
   authors: [{ name: site.name, url: site.url }],
   creator: site.name,
   publisher: site.name,
@@ -57,12 +61,12 @@ export const metadata: Metadata = {
     locale: "en_ZA",
     url: site.url,
     siteName: site.name,
-    title: `${site.name} — ${site.role} in ${site.shortLocation}`,
+    title: defaultTitle,
     description: site.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${site.name} — ${site.role} in ${site.shortLocation}`,
+    title: defaultTitle,
     description: site.description,
   },
   robots: {
@@ -81,13 +85,15 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f1ea" },
-    { media: "(prefers-color-scheme: dark)", color: "#0c0b0f" },
+    { media: "(prefers-color-scheme: light)", color: "#f2eee3" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c110e" },
   ],
   colorScheme: "light dark",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const reviews = await getApprovedReviews();
+
   return (
     <html
       lang="en-ZA"
@@ -95,7 +101,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${display.variable} ${sans.variable}`}
     >
       <body>
-        <JsonLd data={buildSiteGraph()} />
+        <JsonLd data={buildSiteGraph(reviews)} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -108,9 +114,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           >
             Skip to content
           </a>
-          <SiteSidebar />
-          <SiteHeader />
-          <div className="lg:pl-[17rem]">{children}</div>
+          <SiteChrome
+            sidebar={<SiteSidebar />}
+            header={<SiteHeader />}
+          >
+            {children}
+          </SiteChrome>
           <ScrollToTop />
         </ThemeProvider>
         <Analytics />

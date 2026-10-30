@@ -83,12 +83,16 @@ export function LegalPage({ title, intro, children }: LegalPageProps) {
 
 type LegalSectionProps = {
   title: string;
+  id?: string;
   children: ReactNode;
 };
 
-export function LegalSection({ title, children }: LegalSectionProps) {
+export function LegalSection({ title, id, children }: LegalSectionProps) {
   return (
-    <section className="border-t border-border pt-6">
+    <section
+      id={id}
+      className="scroll-mt-28 border-t border-border pt-6"
+    >
       <h2 className="font-display text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
         {title}
       </h2>

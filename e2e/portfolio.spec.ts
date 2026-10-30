@@ -1,11 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-const expectedSiteOrigin = configuredSiteUrl
-  ? new URL(configuredSiteUrl).origin
-  : "https://example.com";
-
 function visibleThemeToggle(page: Page) {
   return page.locator('button[aria-label^="Switch to"]:visible').first();
 }
@@ -53,8 +48,8 @@ test("dark-mode select options use readable card colors", async ({ page }) => {
   await page.reload();
 
   const option = page.locator('select[name="projectType"] option').nth(1);
-  await expect(option).toHaveCSS("background-color", "rgb(22, 21, 27)");
-  await expect(option).toHaveCSS("color", "rgb(243, 241, 234)");
+  await expect(option).toHaveCSS("background-color", "rgb(20, 27, 23)");
+  await expect(option).toHaveCSS("color", "rgb(242, 238, 227)");
 });
 
 test("work pagination keeps focus and live announcements", async ({ page }) => {
@@ -93,19 +88,41 @@ test("floating back-to-top responds to scroll", async ({ page }) => {
 
 test("social and contact links appear exactly once", async ({ page }, testInfo) => {
   await expect(page.locator('a[href*="github.com"]')).toHaveCount(1);
-  await expect(page.locator('a[href*="linkedin.com"]')).toHaveCount(1);
+  await expect(page.locator('a[href*="linkedin.com"]')).toHaveCount(0);
+  await expect(page.locator('a[href*="wa.me"]')).toHaveCount(1);
   await expect(page.locator('a[href^="mailto:"]')).toHaveCount(1);
 
   const footer = page.locator('footer[aria-labelledby="footer-heading"]');
-  const socialLinks = footer
-    .getByRole("navigation", { name: "Social links" })
+  const connectLinks = footer
+    .getByRole("navigation", { name: "Connect links" })
     .getByRole("link");
+  const hoverBackground = testInfo.project.name.includes("dark")
+    ? "rgb(63, 107, 88)"
+    : "rgb(30, 58, 49)";
   const legalLinks = footer
     .getByRole("navigation", { name: "Legal" })
     .getByRole("link");
+  const whatsappLink = connectLinks.filter({ hasText: "WhatsApp" });
 
-  await expect(socialLinks).toHaveCount(2);
+  await expect(connectLinks).toHaveCount(2);
+  await expect(
+    connectLinks.filter({ hasText: "GitHub" }),
+  ).toHaveAttribute("href", "https://github.com/reeperx");
+  await expect(whatsappLink).toHaveAttribute(
+    "href",
+    "https://wa.me/27717884230",
+  );
+  await expect(whatsappLink).not.toContainText("071 788 4230");
+  await expect(whatsappLink).not.toContainText("+27");
+  await expect(page.locator("#contact")).not.toContainText(
+    "Or message me on",
+  );
+  await expect(page.locator("#contact")).not.toContainText("071 788 4230");
+  await expect
+    .poll(() => page.locator("body").innerText())
+    .not.toContain("071 788 4230");
   await expect(legalLinks).toHaveCount(2);
+  await expect(footer.getByText(/The Original Brand/)).toBeVisible();
   await expect(
     legalLinks.filter({ hasText: "Privacy Policy" }),
   ).toHaveAttribute("href", "/privacy");
@@ -115,16 +132,51 @@ test("social and contact links appear exactly once", async ({ page }, testInfo) 
   );
   await expect(footer).not.toContainText("Built with Next.js");
   await expect(footer).not.toContainText("Available for Q4 2026");
-  await expect(footer).not.toContainText("Johannesburg");
+  await expect(footer).not.toContainText("Gauteng");
   await expect(footer).not.toContainText("SAST");
 
   if (!testInfo.project.name.startsWith("mobile")) {
-    for (const link of await socialLinks.all()) {
+    for (const link of await connectLinks.all()) {
       await link.hover();
-      await expect(link).toHaveCSS("background-color", "rgb(35, 56, 232)");
-      await expect(link).toHaveCSS("color", "rgb(243, 241, 234)");
+      await expect(link).toHaveCSS("background-color", hoverBackground);
+      await expect(link).toHaveCSS("color", "rgb(242, 238, 227)");
     }
   }
+});
+
+test("copy email stays inline and legible at 320px", async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.reload();
+
+  const contact = page.locator("#contact");
+  const email = contact.locator('a[href^="mailto:"]');
+  const copy = contact.getByRole("button", { name: "Copy email" });
+
+  await contact.scrollIntoViewIfNeeded();
+  await expect(email).toBeVisible();
+  await expect(copy).toBeVisible();
+
+  const emailBox = await email.boundingBox();
+  const copyBox = await copy.boundingBox();
+  expect(emailBox).not.toBeNull();
+  expect(copyBox).not.toBeNull();
+
+  if (emailBox && copyBox) {
+    const emailCenter = emailBox.y + emailBox.height / 2;
+    const copyCenter = copyBox.y + copyBox.height / 2;
+    expect(Math.abs(emailCenter - copyCenter)).toBeLessThan(4);
+    expect(emailBox.x + emailBox.width).toBeLessThanOrEqual(copyBox.x);
+  }
+
+  await expect(copy).toHaveCSS("background-color", "rgb(242, 238, 227)");
+  await expect(copy).toHaveCSS(
+    "color",
+    testInfo.project.name.includes("dark")
+      ? "rgb(63, 107, 88)"
+      : "rgb(30, 58, 49)",
+  );
 });
 
 test("legal pages carry policy content and footer links", async ({ page }) => {
@@ -154,11 +206,136 @@ test("legal pages carry policy content and footer links", async ({ page }) => {
     page.getByRole("heading", { level: 2, name: "Project inquiries" }),
   ).toBeVisible();
   await expect(
+    page.getByRole("heading", { level: 2, name: "Comments and reviews" }),
+  ).toBeVisible();
+  await expect(page.locator("#comments-and-reviews")).toContainText(
+    "Verified client",
+  );
+  await expect(
     footer.getByRole("link", { name: "Privacy Policy" }),
   ).toHaveAttribute("href", "/privacy");
 });
 
-test("sitemap lists work, legal pages, and project images", async ({
+test("footer links to the journal, reviews, and RSS", async ({ page }) => {
+  const footer = page.locator('footer[aria-labelledby="footer-heading"]');
+  const journal = footer.getByRole("navigation", {
+    name: "Journal and reviews",
+  });
+
+  await expect(journal.getByRole("link", { name: "Blog" })).toHaveAttribute(
+    "href",
+    "/blog",
+  );
+  await expect(
+    journal.getByRole("link", { name: "Client reviews" }),
+  ).toHaveAttribute("href", "/reviews");
+  await expect(journal.getByRole("link", { name: "RSS" })).toHaveAttribute(
+    "href",
+    "/blog/rss.xml",
+  );
+});
+
+test("blog index, RSS feed, and reviews page are public", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/blog");
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "Notes from the workshop.",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Follow by RSS" }),
+  ).toHaveAttribute("href", "/blog/rss.xml");
+  await expect(page.getByText("Sample", { exact: true })).toHaveCount(0);
+
+  const postLinks = page.locator(
+    'main a[href^="/blog/"]:not([href="/blog/rss.xml"])',
+  );
+
+  if ((await postLinks.count()) > 0) {
+    await postLinks.first().click();
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByText("Share", { exact: true }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /conversation|comments/i })).toBeVisible();
+    await expect(page.locator("#discussion")).toBeVisible();
+
+    await page.getByRole("button", { name: "Leave a comment" }).click();
+    const commentDialog = page.getByRole("dialog");
+    await expect(commentDialog).toBeVisible();
+    await expect(
+      commentDialog.getByLabel("Name", { exact: true }),
+    ).toBeVisible();
+    await commentDialog.getByRole("button", { name: "Close" }).click();
+    await expect(commentDialog).toHaveCount(0);
+  } else {
+    await expect(page.getByText("First post coming")).toBeVisible();
+  }
+
+  const rss = await request.get("/blog/rss.xml");
+  expect(rss.status()).toBe(200);
+  expect(rss.headers()["content-type"]).toContain("application/rss+xml");
+  const feed = await rss.text();
+  expect(feed).toContain("<rss version=\"2.0\"");
+  expect(feed).toContain("<channel>");
+  expect(feed).not.toContain("Sample");
+
+  await page.goto("/reviews");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Proof, with permission." }),
+  ).toBeVisible();
+  await expect(page.locator("#leave-a-review")).toBeVisible();
+  await expect(page.getByLabel("Your name")).toHaveCount(0);
+  await page.getByRole("button", { name: "Write a review" }).click();
+
+  const reviewDialog = page.getByRole("dialog");
+  await expect(reviewDialog).toBeVisible();
+  await expect(
+    reviewDialog.getByRole("heading", { name: "Leave a review." }),
+  ).toBeVisible();
+  await expect(reviewDialog.getByLabel("Your name")).toBeVisible();
+  await expect(reviewDialog.getByLabel("Your review")).toBeVisible();
+  await expect(
+    reviewDialog.getByText(
+      "Reviews are checked against client records before publication.",
+    ),
+  ).toBeVisible();
+  await reviewDialog.getByRole("button", { name: "Close" }).click();
+  await expect(reviewDialog).toHaveCount(0);
+  await expect(page.getByText("Sample", { exact: true })).toHaveCount(0);
+});
+
+test("admin is private, noindex, and gated", async ({ page }) => {
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/admin\/login/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Sign in to moderate." }),
+  ).toBeVisible();
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    /noindex/,
+  );
+
+  const passwordField = page.getByLabel("Admin password");
+
+  if ((await passwordField.count()) > 0) {
+    await expect(passwordField).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+  } else {
+    await expect(
+      page.getByText("Admin access is not configured yet."),
+    ).toBeVisible();
+  }
+
+  await expect(page.getByRole("link", { name: "Back to the site" })).toHaveAttribute(
+    "href",
+    "/",
+  );
+});
+
+test("sitemap lists work, blog, reviews, legal pages, and images", async ({
   request,
 }) => {
   const response = await request.get("/sitemap.xml");
@@ -166,21 +343,32 @@ test("sitemap lists work, legal pages, and project images", async ({
   expect(response.status()).toBe(200);
   const body = await response.text();
   expect(body).toContain("/work");
+  expect(body).toContain("/blog");
+  expect(body).toContain("/reviews");
   expect(body).toContain("/privacy");
   expect(body).toContain("/terms");
   expect(body).toContain("ngobz-mobile.jpg");
-  expect(body.match(/<lastmod>2026-10-29<\/lastmod>/g)).toHaveLength(4);
+  expect(body).toContain("<lastmod>2026-10-29</lastmod>");
+  expect(body).not.toContain("/admin");
 });
 
 test("robots and manifest expose crawl and install metadata", async ({
+  page,
   request,
 }) => {
+  const canonical = await page
+    .locator('link[rel="canonical"]')
+    .getAttribute("href");
+  expect(canonical).not.toBeNull();
+  const siteOrigin = new URL(canonical!).origin;
+
   const robotsResponse = await request.get("/robots.txt");
   expect(robotsResponse.status()).toBe(200);
   const robots = await robotsResponse.text();
   expect(robots).toContain("Disallow: /api/");
-  expect(robots).toContain(`Sitemap: ${expectedSiteOrigin}/sitemap.xml`);
-  expect(robots).toContain(`Host: ${new URL(expectedSiteOrigin).host}`);
+  expect(robots).toContain("Disallow: /admin");
+  expect(robots).toContain(`Sitemap: ${siteOrigin}/sitemap.xml`);
+  expect(robots).toContain(`Host: ${new URL(siteOrigin).host}`);
 
   const manifestResponse = await request.get("/manifest.webmanifest");
   expect(manifestResponse.status()).toBe(200);
@@ -193,8 +381,8 @@ test("robots and manifest expose crawl and install metadata", async ({
     start_url?: string;
     icons?: Array<{ src?: string }>;
   };
-  expect(manifest.name).toContain("Reeper");
-  expect(manifest.short_name).toBe("Reeper");
+  expect(manifest.name).toContain("TOGB");
+  expect(manifest.short_name).toBe("TOGB");
   expect(manifest.start_url).toBe("/");
   expect(manifest.icons?.[0]?.src).toBe("/icon.svg");
 });
@@ -209,9 +397,10 @@ test("homepage exposes complete canonical and social metadata", async ({
   expect(canonical).not.toBeNull();
   expect(new URL(canonical!).pathname).toBe("/");
 
+  await expect(page).toHaveTitle(/Web Developer in Gauteng/i);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
-    /Independent web developer in Johannesburg/,
+    /websites and web apps for small teams in Gauteng/i,
   );
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
     "content",
@@ -219,7 +408,7 @@ test("homepage exposes complete canonical and social metadata", async ({
   );
   await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
     "content",
-    "Reeper",
+    "TOGB",
   );
   await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute(
     "content",
@@ -251,7 +440,30 @@ test("homepage exposes complete canonical and social metadata", async ({
   expect(twitterImage.headers()["content-type"]).toContain("image/png");
 });
 
-test("structured data describes the studio without sample reviews", async ({
+test("hero artwork and anime portrait use the generated assets", async ({
+  page,
+}) => {
+  const heroImage = page
+    .locator('section[aria-labelledby="hero-title"] img')
+    .first();
+  await expect(heroImage).toHaveAttribute("src", /togb-hero/);
+  await expect
+    .poll(async () =>
+      heroImage.evaluate((image) => (image as HTMLImageElement).naturalWidth),
+    )
+    .toBeGreaterThan(0);
+
+  await page.locator("#about").scrollIntoViewIfNeeded();
+  const portrait = page.locator("#about img");
+  await expect(portrait).toHaveAttribute("src", /togb-portrait-anime/);
+  await expect
+    .poll(async () =>
+      portrait.evaluate((image) => (image as HTMLImageElement).naturalWidth),
+    )
+    .toBeGreaterThan(0);
+});
+
+test("structured data describes the studio and only approved reviews", async ({
   page,
 }) => {
   const payloads = await page
@@ -259,10 +471,17 @@ test("structured data describes the studio without sample reviews", async ({
     .evaluateAll((nodes) =>
       nodes.map((node) => JSON.parse(node.textContent ?? "{}")),
     );
-  const graph = payloads.flatMap(
-    (payload: { "@graph"?: Array<Record<string, unknown>> }) =>
-      payload["@graph"] ?? [payload],
-  );
+  const graph = payloads.flatMap((payload) => {
+    if (Array.isArray(payload)) {
+      return payload as Array<Record<string, unknown>>;
+    }
+
+    const entry = payload as {
+      "@graph"?: Array<Record<string, unknown>>;
+    };
+
+    return entry["@graph"] ?? [entry];
+  });
   const types = graph.map((entry) => entry["@type"]);
 
   expect(types).toEqual(
@@ -271,12 +490,12 @@ test("structured data describes the studio without sample reviews", async ({
       "Person",
       "ProfessionalService",
       "WebPage",
+      "FAQPage",
     ]),
   );
 
   const serialized = JSON.stringify(payloads);
-  expect(serialized).not.toContain('"Review"');
-  expect(serialized).not.toContain('"AggregateRating"');
+  expect(serialized).not.toContain("Sample");
 
   const service = graph.find(
     (entry) => entry["@type"] === "ProfessionalService",
@@ -284,10 +503,46 @@ test("structured data describes the studio without sample reviews", async ({
     | {
         hasOfferCatalog?: { itemListElement?: unknown[] };
         slogan?: string;
+        telephone?: string;
+        logo?: string;
+        contactPoint?: { telephone?: string };
+        review?: Array<{
+          reviewBody?: string;
+          author?: { name?: string };
+        }>;
+        aggregateRating?: { reviewCount?: number };
       }
     | undefined;
   expect(service?.slogan).toBe("Websites built to earn their keep.");
+  expect(service?.telephone).toBe("+27717884230");
+  expect(service?.logo).toContain("/icon.svg");
+  expect(service?.contactPoint?.telephone).toBe("+27717884230");
   expect(service?.hasOfferCatalog?.itemListElement?.length).toBeGreaterThan(0);
+
+  const reviews = service?.review ?? [];
+
+  if (reviews.length === 0) {
+    expect(serialized).not.toContain('"Review"');
+    expect(serialized).not.toContain('"AggregateRating"');
+  } else {
+    for (const review of reviews) {
+      expect(review.reviewBody?.trim().length).toBeGreaterThan(0);
+      expect(review.author?.name?.trim().length).toBeGreaterThan(0);
+      expect(review.reviewBody).not.toContain("Sample");
+    }
+
+    if (service?.aggregateRating) {
+      expect(service.aggregateRating.reviewCount).toBeGreaterThan(0);
+      expect(service.aggregateRating.reviewCount).toBeLessThanOrEqual(
+        reviews.length,
+      );
+    }
+  }
+
+  const faq = graph.find((entry) => entry["@type"] === "FAQPage") as
+    | { mainEntity?: unknown[] }
+    | undefined;
+  expect(faq?.mainEntity?.length).toBeGreaterThan(0);
 });
 
 test("Vercel Web Analytics is wired into the app", async ({ page }) => {
@@ -406,133 +661,26 @@ test("homepage links to the complete work index", async ({ page }) => {
   await expect(page).toHaveURL(/\/work$/);
 });
 
-test("testimonial carousel pairs portraits with names and navigates", async ({
-  page,
-}) => {
-  const carousel = page.getByRole("region", { name: "What clients say" });
-  const slides = carousel.locator('[aria-roledescription="slide"]');
-  const firstSlide = slides.nth(0);
-  const secondSlide = slides.nth(1);
+test("approved reviews show only real client content", async ({ page }) => {
+  const reviews = page.getByRole("region", { name: "What clients say" });
 
-  await expect(firstSlide).toHaveAttribute("aria-hidden", "false");
-  await expect(secondSlide).toHaveAttribute("aria-hidden", "true");
+  if ((await reviews.count()) === 0) {
+    await expect(page.getByText("Sample", { exact: true })).toHaveCount(0);
+    return;
+  }
 
-  const portrait = firstSlide.locator("img");
-  await expect(portrait).toHaveAttribute("src", /portrait-1\.jpg/);
-  await expect(firstSlide.getByText("Sample", { exact: true })).toBeVisible();
-  await expect(
-    firstSlide.getByRole("img", { name: "Rated 5 out of 5" }),
-  ).toBeVisible();
-
-  const imageBox = await portrait.boundingBox();
-  const nameBox = await firstSlide
-    .getByText("Thandi M.", { exact: true })
-    .boundingBox();
-  expect(imageBox).not.toBeNull();
-  expect(nameBox).not.toBeNull();
-  expect(imageBox!.x).toBeLessThan(nameBox!.x);
-
-  await carousel.getByRole("button", { name: "Next testimonial" }).click();
-
-  await expect(firstSlide).toHaveAttribute("aria-hidden", "true");
-  await expect(secondSlide).toHaveAttribute("aria-hidden", "false");
-  await expect(secondSlide.getByText("Sample", { exact: true })).toBeVisible();
-
-  await carousel
-    .getByRole("button", { name: "Show testimonial 1 of 3" })
-    .click();
-
-  await expect(firstSlide).toHaveAttribute("aria-hidden", "false");
-  await expect(secondSlide).toHaveAttribute("aria-hidden", "true");
+  await expect(reviews).toBeVisible();
+  await expect(reviews.locator("blockquote")).not.toHaveCount(0);
+  await expect(reviews.getByText("Sample", { exact: true })).toHaveCount(0);
 });
 
-test("testimonial carousel auto-advances, pauses, and explicitly restarts", async ({
-  page,
-}, testInfo) => {
-  test.skip(
-    testInfo.project.name !== "desktop-light",
-    "Timing coverage runs once.",
-  );
-  test.slow();
+test("FAQ answers common search questions", async ({ page }) => {
+  const faq = page.getByRole("region", { name: "Questions, answered" });
+  await expect(faq).toBeVisible();
+  await expect(faq.locator("details")).toHaveCount(7);
 
-  const carousel = page.getByRole("region", { name: "What clients say" });
-  const slides = carousel.locator('[aria-roledescription="slide"]');
-  const slide = (number: number) => slides.nth(number - 1);
-
-  await expect(slide(1)).toHaveAttribute("aria-hidden", "false");
-  await expect(
-    carousel.getByRole("button", { name: "Pause automatic rotation" }),
-  ).toBeVisible();
-
-  await expect(slide(2)).toHaveAttribute("aria-hidden", "false", {
-    timeout: 9000,
-  });
-
-  await carousel.hover();
-  await page.waitForTimeout(7000);
-  await expect(slide(2)).toHaveAttribute("aria-hidden", "false");
-
-  await page.mouse.move(0, 0);
-  await expect(slide(3)).toHaveAttribute("aria-hidden", "false", {
-    timeout: 9000,
-  });
-
-  const nextButton = carousel.getByRole("button", {
-    name: "Next testimonial",
-  });
-  await nextButton.focus();
-  await expect(nextButton).toBeFocused();
-  await page.waitForTimeout(7000);
-  await expect(slide(3)).toHaveAttribute("aria-hidden", "false");
-
-  await page.getByRole("heading", { level: 1 }).click();
-  await expect(nextButton).not.toBeFocused();
-  await page.waitForTimeout(7000);
-  await expect(slide(3)).toHaveAttribute("aria-hidden", "false");
-
-  await carousel
-    .getByRole("button", { name: "Pause automatic rotation" })
-    .click();
-  await expect(
-    carousel.getByRole("button", { name: "Start automatic rotation" }),
-  ).toBeVisible();
-  await page.waitForTimeout(7000);
-  await expect(slide(3)).toHaveAttribute("aria-hidden", "false");
-
-  await carousel
-    .getByRole("button", { name: "Start automatic rotation" })
-    .click();
-  await expect(slide(1)).toHaveAttribute("aria-hidden", "false", {
-    timeout: 9000,
-  });
-});
-
-test("testimonial carousel stays still when reduced motion is requested", async ({
-  page,
-}, testInfo) => {
-  test.skip(
-    testInfo.project.name !== "desktop-light",
-    "Reduced-motion coverage runs once.",
-  );
-  test.slow();
-
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.reload();
-
-  const carousel = page.getByRole("region", { name: "What clients say" });
-  const slides = carousel.locator('[aria-roledescription="slide"]');
-  const firstSlide = slides.nth(0);
-  const secondSlide = slides.nth(1);
-
-  await expect(
-    carousel.getByRole("button", { name: /automatic rotation/ }),
-  ).toHaveCount(0);
-
-  await page.waitForTimeout(7000);
-  await expect(firstSlide).toHaveAttribute("aria-hidden", "false");
-
-  await carousel.getByRole("button", { name: "Next testimonial" }).click();
-  await expect(secondSlide).toHaveAttribute("aria-hidden", "false");
+  await faq.getByText("How much does a website cost?").click();
+  await expect(faq.getByText(/fixed quote/i)).toBeVisible();
 });
 
 test("desktop sidebar uses icon navigation and a distinct studio card", async ({
@@ -546,14 +694,15 @@ test("desktop sidebar uses icon navigation and a distinct studio card", async ({
   const sidebar = page.locator("aside");
   await expect(sidebar).toBeVisible();
   await expect(
-    sidebar.getByRole("link", { name: "Reeper — home" }),
+    sidebar.getByRole("link", { name: /TOGB/ }),
   ).toBeVisible();
   await expect(
     sidebar.getByText("Websites built to earn their keep."),
   ).toBeVisible();
+  await expect(sidebar.getByText("The Original Brand")).toBeVisible();
 
   const nav = sidebar.getByRole("navigation", { name: "Primary" });
-  await expect(nav.getByRole("link")).toHaveCount(4);
+  await expect(nav.getByRole("link")).toHaveCount(5);
 
   for (const link of await nav.getByRole("link").all()) {
     await expect(link.locator("svg")).toHaveCount(1);
@@ -621,6 +770,26 @@ test("legal pages have no serious accessibility violations", async ({
       [],
     );
   }
+});
+
+test("review dialog has no serious accessibility violations", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/reviews");
+  await page.getByRole("button", { name: "Write a review" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+
+  const blocking = results.violations.filter(
+    (violation) =>
+      violation.impact === "serious" || violation.impact === "critical",
+  );
+
+  expect(blocking, JSON.stringify(blocking, null, 2)).toEqual([]);
 });
 
 test("contact form is labelled and validates before sending", async ({ page }) => {

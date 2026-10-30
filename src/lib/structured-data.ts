@@ -1,5 +1,10 @@
 import { publishedProjects } from "@/content/projects";
-import { services, site, testimonials, tools } from "@/content/site";
+import { faqs, services, site, tools } from "@/content/site";
+import type {
+  BlogPost,
+  BlogPostSummary,
+  PublicReview,
+} from "@/lib/community-data";
 import { absoluteUrl } from "@/lib/seo";
 
 const rootUrl = absoluteUrl("/");
@@ -7,6 +12,8 @@ const websiteId = `${rootUrl}#website`;
 const personId = `${rootUrl}#person`;
 const serviceId = `${rootUrl}#professional-service`;
 const homePageId = `${rootUrl}#webpage`;
+const logoUrl = absoluteUrl("/icon.svg");
+const socialImageUrl = absoluteUrl("/opengraph-image");
 
 const socialUrls = site.socials
   .filter((social) => social.href.startsWith("http"))
@@ -14,48 +21,51 @@ const socialUrls = site.socials
 
 const postalAddress = {
   "@type": "PostalAddress",
-  addressLocality: site.shortLocation,
   addressRegion: "Gauteng",
   addressCountry: "ZA",
 } as const;
 
 const areaServed = [
-  { "@type": "City", name: site.shortLocation },
   { "@type": "AdministrativeArea", name: "Gauteng" },
   { "@type": "Country", name: "South Africa" },
 ] as const;
 
 const hasPlaceholderEmail = site.email.endsWith("@example.com");
 
-export function buildSiteGraph() {
-  const genuineTestimonials = testimonials.filter(
-    (testimonial) => !testimonial.placeholder,
-  );
-
-  const reviews = genuineTestimonials.map((testimonial) => ({
+export function buildSiteGraph(reviews: PublicReview[] = []) {
+  const reviewNodes = reviews.map((review) => ({
     "@type": "Review",
     author: {
       "@type": "Person",
-      name: testimonial.name,
+      name: review.name,
     },
-    reviewRating: {
-      "@type": "Rating",
-      ratingValue: testimonial.rating,
-      bestRating: 5,
-      worstRating: 1,
-    },
-    reviewBody: testimonial.quote,
+    ...(typeof review.rating === "number"
+      ? {
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: review.rating,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
+    reviewBody: review.quote,
+    datePublished: review.approvedAt ?? review.createdAt,
     itemReviewed: { "@id": serviceId },
   }));
 
+  const ratedReviews = reviews.filter(
+    (review) => typeof review.rating === "number",
+  );
+
   const averageRating =
-    genuineTestimonials.length > 0
+    ratedReviews.length > 0
       ? Number(
           (
-            genuineTestimonials.reduce(
-              (total, testimonial) => total + testimonial.rating,
+            ratedReviews.reduce(
+              (total, review) => total + (review.rating ?? 0),
               0,
-            ) / genuineTestimonials.length
+            ) / ratedReviews.length
           ).toFixed(1),
         )
       : null;
@@ -64,14 +74,31 @@ export function buildSiteGraph() {
     "@type": "ProfessionalService",
     "@id": serviceId,
     name: `${site.name} — ${site.role}`,
-    alternateName: site.wordmark,
+    alternateName: site.brandLine,
     url: rootUrl,
     slogan: site.tagline,
     description: site.description,
+    brand: {
+      "@type": "Brand",
+      name: site.name,
+      slogan: site.brandLine,
+    },
+    logo: logoUrl,
+    image: socialImageUrl,
+    telephone: site.whatsapp.e164,
+    foundingDate: site.established,
     address: postalAddress,
     areaServed,
     founder: { "@id": personId },
     sameAs: socialUrls,
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: site.whatsapp.e164,
+      contactType: "sales",
+      areaServed: "ZA",
+      availableLanguage: ["English"],
+      ...(hasPlaceholderEmail ? {} : { email: site.email }),
+    },
     ...(hasPlaceholderEmail ? {} : { email: site.email }),
     hasOfferCatalog: {
       "@type": "OfferCatalog",
@@ -89,13 +116,13 @@ export function buildSiteGraph() {
         },
       })),
     },
-    ...(reviews.length > 0
+    ...(reviewNodes.length > 0 ? { review: reviewNodes } : {}),
+    ...(averageRating !== null
       ? {
-          review: reviews,
           aggregateRating: {
             "@type": "AggregateRating",
             ratingValue: averageRating,
-            reviewCount: reviews.length,
+            reviewCount: ratedReviews.length,
             bestRating: 5,
             worstRating: 1,
           },
@@ -111,6 +138,7 @@ export function buildSiteGraph() {
         "@id": websiteId,
         url: rootUrl,
         name: site.name,
+        alternateName: site.brandLine,
         description: site.description,
         inLanguage: "en-ZA",
         publisher: { "@id": personId },
@@ -119,12 +147,16 @@ export function buildSiteGraph() {
         "@type": "Person",
         "@id": personId,
         name: site.name,
+        alternateName: site.brandLine,
         url: rootUrl,
+        image: absoluteUrl(site.portrait.image),
         jobTitle: site.role,
         description: site.description,
+        telephone: site.whatsapp.e164,
         address: postalAddress,
         sameAs: socialUrls,
         knowsAbout: tools,
+        knowsLanguage: ["English"],
         worksFor: { "@id": serviceId },
         ...(hasPlaceholderEmail ? {} : { email: site.email }),
       },
@@ -148,6 +180,115 @@ export function buildHomePageSchema() {
   };
 }
 
+export function buildBlogIndexSchema(posts: BlogPostSummary[]) {
+  const blogUrl = absoluteUrl("/blog");
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": `${blogUrl}#blog`,
+    url: blogUrl,
+    name: `Blog — ${site.name}`,
+    description:
+      "Notes on building fast, considered websites and web apps for small teams.",
+    inLanguage: "en-ZA",
+    isPartOf: { "@id": websiteId },
+    publisher: { "@id": personId },
+    blogPost: posts.map((post) => ({
+      "@type": "BlogPosting",
+      "@id": absoluteUrl(`/blog/${post.slug}`),
+      headline: post.title,
+      url: absoluteUrl(`/blog/${post.slug}`),
+      description: post.excerpt,
+      datePublished: post.publishedAt,
+      dateModified: post.updatedAt,
+      image: post.coverImageUrl
+        ? absoluteUrl(post.coverImageUrl)
+        : socialImageUrl,
+      keywords: post.tags.join(", "),
+      author: { "@id": personId },
+      publisher: { "@id": personId },
+    })),
+  };
+}
+
+export function buildBlogPostSchema(post: BlogPost) {
+  const postUrl = absoluteUrl(`/blog/${post.slug}`);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `${postUrl}#article`,
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    url: postUrl,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": postUrl,
+    },
+    image: post.coverImageUrl
+      ? [absoluteUrl(post.coverImageUrl)]
+      : [socialImageUrl],
+    author: { "@id": personId },
+    publisher: { "@id": personId },
+    isPartOf: { "@id": `${absoluteUrl("/blog")}#blog` },
+    inLanguage: "en-ZA",
+    keywords: post.tags.join(", "),
+    articleSection: post.tags,
+  };
+}
+
+export function buildReviewsPageSchema(reviews: PublicReview[]) {
+  const reviewsUrl = absoluteUrl("/reviews");
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${reviewsUrl}#webpage`,
+    url: reviewsUrl,
+    name: `Client reviews — ${site.name}`,
+    description:
+      "Reviews from clients who have worked with TOGB, published only with permission.",
+    inLanguage: "en-ZA",
+    isPartOf: { "@id": websiteId },
+    about: { "@id": serviceId },
+    ...(reviews.length > 0
+      ? {
+          mainEntity: {
+            "@type": "ItemList",
+            numberOfItems: reviews.length,
+            itemListElement: reviews.map((review, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              item: {
+                "@type": "Review",
+                author: {
+                  "@type": "Person",
+                  name: review.name,
+                },
+                reviewBody: review.quote,
+                datePublished: review.approvedAt ?? review.createdAt,
+                ...(typeof review.rating === "number"
+                  ? {
+                      reviewRating: {
+                        "@type": "Rating",
+                        ratingValue: review.rating,
+                        bestRating: 5,
+                        worstRating: 1,
+                      },
+                    }
+                  : {}),
+                itemReviewed: { "@id": serviceId },
+              },
+            })),
+          },
+        }
+      : {}),
+  };
+}
+
 export function buildWorkCollectionSchema() {
   return {
     "@context": "https://schema.org",
@@ -156,7 +297,7 @@ export function buildWorkCollectionSchema() {
     url: absoluteUrl("/work"),
     name: `Selected work — ${site.name}`,
     description:
-      "A complete index of websites and web apps built by Reeper, an independent web developer in Johannesburg.",
+      "A complete index of websites and web apps built by TOGB, an independent web developer in Gauteng.",
     inLanguage: "en-ZA",
     isPartOf: { "@id": websiteId },
     about: { "@id": serviceId },
@@ -178,6 +319,22 @@ export function buildWorkCollectionSchema() {
         },
       })),
     },
+  };
+}
+
+export function buildFaqSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${rootUrl}#faq`,
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
   };
 }
 

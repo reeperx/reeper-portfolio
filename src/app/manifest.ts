@@ -4,13 +4,13 @@ import { site } from "@/content/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${site.name} — ${site.role}`,
+    name: `${site.name} — ${site.brandLine}`,
     short_name: site.name,
     description: site.description,
     start_url: "/",
     display: "standalone",
-    background_color: "#f3f1ea",
-    theme_color: "#2338e8",
+    background_color: "#f2eee3",
+    theme_color: "#1e3a31",
     lang: "en-ZA",
     categories: ["business", "portfolio", "technology"],
     icons: [

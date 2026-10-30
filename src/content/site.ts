@@ -12,7 +12,7 @@ function normalizeSiteUrl(value: string | undefined) {
     return new URL(candidate).origin;
   } catch {
     throw new Error(
-      "NEXT_PUBLIC_SITE_URL must be an absolute URL, for example https://reeper.dev.",
+      "NEXT_PUBLIC_SITE_URL must be an absolute URL, for example https://your-domain.com.",
     );
   }
 }
@@ -21,17 +21,32 @@ const siteUrl = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || fallbackEmail;
 
 export const site = {
-  name: "Reeper",
-  wordmark: "reeper",
+  name: "TOGB",
+  wordmark: "TOGB",
+  brandLine: "The Original Brand",
+  legalName: "TOGB (The Original Brand)",
   role: "Independent web developer",
   tagline: "Websites built to earn their keep.",
-  location: "Johannesburg, South Africa",
-  shortLocation: "Johannesburg",
+  location: "Gauteng, South Africa",
+  shortLocation: "Gauteng",
   timeZone: "Africa/Johannesburg",
+  established: "2018",
   email,
   url: siteUrl,
+  whatsapp: {
+    label: "WhatsApp",
+    e164: "+27717884230",
+    href: "https://wa.me/27717884230",
+  },
   description:
-    "Independent web developer in Johannesburg, building fast, considered websites and web apps for small teams.",
+    "TOGB builds fast, considered websites and web apps for small teams in Gauteng, South Africa. Independent design, Next.js development, and deployment.",
+  hero: {
+    image: "/images/togb-hero.webp",
+  },
+  portrait: {
+    image: "/images/togb-portrait-anime.webp",
+    alt: "Anime-style portrait of the developer behind TOGB.",
+  },
   contentUpdated: "2026-10-29",
   legalUpdated: "29 October 2026",
   legalUpdatedIso: "2026-10-29",
@@ -39,11 +54,11 @@ export const site = {
   availabilityNote: "Taking on two new projects this quarter.",
   socials: [
     { label: "GitHub", href: "https://github.com/reeperx" },
-    { label: "LinkedIn", href: "https://www.linkedin.com/in/reeperx" },
     { label: "Email", href: `mailto:${email}` },
   ],
   nav: [
     { label: "Work", href: "/#work" },
+    { label: "Blog", href: "/blog" },
     { label: "Services", href: "/#services" },
     { label: "About", href: "/#about" },
     { label: "Contact", href: "/#contact" },
@@ -104,46 +119,45 @@ export const tools = [
   "Figma",
 ];
 
-export type Testimonial = {
-  quote: string;
-  name: string;
-  role: string;
-  image: string;
-  /** Whole-number rating from 1 to 5. Only publish real ratings. */
-  rating: number;
-  /** Marks fabricated copy and ratings that must be replaced before launch. */
-  placeholder?: boolean;
+export type Faq = {
+  question: string;
+  answer: string;
 };
 
-// Replace all three sample slides with real client words, photos, and ratings
-// (with permission) before launch. Do not ship a testimonial or rating that
-// nobody actually gave.
-export const testimonials: Testimonial[] = [
+export const faqs: Faq[] = [
   {
-    quote:
-      "Reeper rebuilt our site in three weeks and it has paid for itself twice over. He asks better questions than the agencies we spoke to, and then he actually ships.",
-    name: "Thandi M.",
-    role: "Founder, Fieldnote",
-    image: "/testimonials/portrait-1.jpg",
-    rating: 5,
-    placeholder: true,
+    question: "What does TOGB build?",
+    answer:
+      "TOGB builds launch sites, focused web apps, and rescues for small teams. Most projects use Next.js, React, and Tailwind CSS, with a CMS, payments, or integrations where they earn their place.",
   },
   {
-    quote:
-      "A real client quote goes here. This slide is a placeholder so you can see how the carousel works with more than one testimonial.",
-    name: "Client name",
-    role: "Role, company",
-    image: "/testimonials/portrait-2.jpg",
-    rating: 5,
-    placeholder: true,
+    question: "Where is TOGB based?",
+    answer:
+      "TOGB is based in Gauteng, South Africa, and works remotely with clients across South Africa and beyond. You work directly with the developer doing the work.",
   },
   {
-    quote:
-      "A second client quote goes here. Swap in the words of someone you have worked with, with their permission.",
-    name: "Client name",
-    role: "Role, company",
-    image: "/testimonials/portrait-3.jpg",
-    rating: 5,
-    placeholder: true,
+    question: "How long does a project take?",
+    answer:
+      "A launch site usually takes two to four weeks, a focused web app four to eight weeks, and a rescue one to two weeks. The exact timeline is fixed in the proposal after a short brief.",
+  },
+  {
+    question: "How much does a website cost?",
+    answer:
+      "Every project is scoped individually. After a short brief I send a fixed quote with the scope, timeline, and deliverables, so there are no hourly surprises. The quote is based on the work, not a template price.",
+  },
+  {
+    question: "Do you work with clients outside Gauteng?",
+    answer:
+      "Yes. The studio is based in Gauteng and works remotely with teams across South Africa and internationally. Most communication happens over email, WhatsApp, or short video calls.",
+  },
+  {
+    question: "What happens after launch?",
+    answer:
+      "You get a handover with the code, accounts, and notes you need to run the site. If you need ongoing support or improvements, we can agree on a separate arrangement.",
+  },
+  {
+    question: "How do we start?",
+    answer:
+      "Send a short brief through the contact form or message me on WhatsApp. I reply within one business day with a plan, a timeline, and a price.",
   },
 ];

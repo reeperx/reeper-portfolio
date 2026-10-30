@@ -7,7 +7,7 @@ import { openGraphImage, twitterImage } from "@/lib/seo";
 import { buildBreadcrumbSchema } from "@/lib/structured-data";
 
 const description =
-  "The terms that apply when you use Reeper’s portfolio and project inquiry form.";
+  "The terms that apply when you use TOGB’s portfolio, blog comments, client reviews, and project inquiry form.";
 
 const canonical = new URL("/terms", site.url).toString();
 
@@ -45,22 +45,23 @@ export default function TermsPage() {
       />
       <LegalPage
         title="Terms of Use"
-        intro="These terms govern your use of this portfolio website. By using the site, you agree to them. If you do not agree, please do not use the site."
+        intro="These terms govern your use of this portfolio website, including the blog, comments, and client reviews. By using the site, you agree to them. If you do not agree, please do not use the site."
       >
         <LegalSection title="About this site">
           <p>
-            This is the portfolio and information site of {site.name}, an
-            independent web developer based in {site.location}. It is not an
-            online store. Nothing on the site is an offer capable of acceptance.
+            This is the portfolio and information site of {site.legalName}, an
+            independent web studio based in {site.location}. It is not an online
+            store. Nothing on the site is an offer capable of acceptance.
           </p>
         </LegalSection>
 
         <LegalSection title="Project inquiries">
           <p>
-            Sending the inquiry form starts a conversation; it does not create a
-            contract. Any project is governed by a separate written proposal or
-            agreement accepted by both sides. Prices, timelines, and
-            availability shown on the site are indicative and may change.
+            Sending the inquiry form or a WhatsApp message starts a
+            conversation; it does not create a contract. Any project is governed
+            by a separate written proposal or agreement accepted by both sides.
+            Prices, timelines, and availability shown on the site are indicative
+            and may change.
           </p>
         </LegalSection>
 
@@ -86,9 +87,88 @@ export default function TermsPage() {
           </p>
         </LegalSection>
 
+        <LegalSection id="comments-and-reviews" title="Comments and reviews">
+          <p>
+            The blog allows readers to leave comments and replies. Client
+            reviews are published separately on the reviews page. Both are
+            moderated, and neither is a private support channel. Do not include
+            confidential information, passwords, identity numbers, payment
+            details, or anything you would not want a stranger to read. Your
+            email address is collected for moderation and verification but is
+            never shown publicly.
+          </p>
+          <p>
+            <strong className="text-foreground">Comments.</strong> You may
+            comment using your name and email address; no account is required.
+            By submitting a comment, you confirm that it is your own words, that
+            it is accurate to the best of your knowledge, and that you have the
+            right to post it. You may not post content that is unlawful,
+            defamatory, harassing, hateful, threatening, spam, advertising,
+            impersonating, invasive of another person’s privacy, or otherwise
+            unrelated to the post. Criticism of the work is allowed. I moderate
+            comments before they appear and may approve, reject, edit for
+            clarity or length, or remove any comment. I am not obliged to
+            publish a comment, and approval does not mean I endorse it.
+          </p>
+          <p>
+            <strong className="text-foreground">Reviews.</strong> Reviews are
+            for current or past clients only. By submitting a review, you
+            confirm that you have worked with TOGB, that the review describes
+            your own honest experience, and that you consent to TOGB publishing
+            your name, optional role and company, optional rating, and review on
+            this website and in related marketing for as long as the review
+            remains published. Reviews are voluntary. I do not offer payment,
+            discounts, or other incentives for a review, and I do not ask
+            clients to leave a particular rating. I check the email address
+            against client records before publishing and may add a “Verified
+            client” label when I have done so. That label means I checked the
+            client relationship; it is not a guarantee that every statement in
+            the review is objectively correct.
+          </p>
+          <p>
+            I may fix a typo, trim a review for length, or remove information
+            that would expose a third party, but I will not change the meaning
+            of a review. If a substantive change is needed, I will ask you
+            first. I may decline or remove a review that appears fake, is
+            written by someone who is not a client, contains unlawful or
+            abusive content, includes another person’s private information, or
+            is spam. I do not remove a review merely because it is critical or
+            negative. If you want a published review corrected or removed,
+            contact me and I will act within a reasonable time. Withdrawing
+            consent ends the permission to publish the review, but does not
+            affect any use made before withdrawal or copies retained in backups
+            or caches for a reasonable period.
+          </p>
+          <p>
+            <strong className="text-foreground">Your content.</strong> You
+            retain ownership of the text you submit. By submitting a comment or
+            review, you grant TOGB a non-exclusive, worldwide, royalty-free
+            licence to host, display, reproduce, format, and share that content
+            on this website and TOGB’s related channels for as long as it is
+            published. The licence ends when the content is removed, except for
+            reasonable backup, cache, and archival copies. You are responsible
+            for the content you submit and for any claim arising from it.
+          </p>
+          <p>
+            <strong className="text-foreground">Likes and reporting.</strong>{" "}
+            Comment likes are anonymous and use a first-party visitor cookie to
+            stop the same browser counting the same like twice. Do not use
+            automated tools or multiple identities to manipulate likes. If you
+            believe content is unlawful, abusive, or infringes your rights,
+            contact me with the page address and enough detail to identify it.
+            I may remove content while I investigate. Moderation decisions are
+            made in good faith, but you are welcome to ask me to reconsider.
+          </p>
+          <p>
+            These rules sit alongside the{" "}
+            <LegalLink href="/privacy">privacy policy</LegalLink>, which
+            explains what is collected, why, and how long it is kept.
+          </p>
+        </LegalSection>
+
         <LegalSection title="Third-party links">
           <p>
-            The site links to services such as GitHub, LinkedIn, Vercel, and
+            The site links to services such as GitHub, WhatsApp, Vercel, and
             Resend. I do not control those sites and am not responsible for
             their content, availability, or privacy practices. Their terms apply
             when you use them.

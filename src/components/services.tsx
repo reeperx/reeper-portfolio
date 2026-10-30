@@ -53,7 +53,14 @@ export function Services() {
         >
           Tell me what you’re building
         </a>{" "}
-        and I’ll point you in the right direction.
+        and I’ll point you in the right direction. You can also read the{" "}
+        <a
+          href="#faq"
+          className="font-medium text-foreground underline decoration-1 underline-offset-4 transition-colors hover:text-link"
+        >
+          common questions
+        </a>
+        .
       </p>
     </section>
   );
