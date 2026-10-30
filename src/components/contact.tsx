@@ -40,28 +40,25 @@ export function Contact() {
               <p className="mt-8 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-on-brand-muted">
                 Prefer email?
               </p>
-              <div className="mt-3 flex flex-wrap items-center gap-4">
+              <div className="mt-3 flex max-w-full items-center gap-2 rounded-full border border-on-brand/25 bg-on-brand/[0.06] p-1.5 pl-4">
                 <a
                   href={`mailto:${site.email}`}
-                  className="max-w-full break-words font-display text-[clamp(1.1rem,2.5vw,1.8rem)] font-medium tracking-[-0.02em] underline decoration-1 underline-offset-[6px] transition-colors hover:decoration-2"
+                  className="min-w-0 truncate font-display text-[clamp(0.8rem,2.4vw,1.55rem)] font-medium tracking-[-0.02em] underline decoration-1 underline-offset-[5px] transition-colors hover:decoration-2"
                 >
                   {site.email}
                 </a>
                 <CopyEmail email={site.email} />
               </div>
 
-              <p className="mt-4 text-sm leading-relaxed text-on-brand-muted">
-                Or message me on{" "}
+              <p className="mt-5 text-sm leading-relaxed text-on-brand-muted">
+                Worked together?{" "}
                 <a
-                  href={site.whatsapp.href}
-                  target="_blank"
-                  rel="noreferrer"
+                  href="/reviews"
                   className="font-medium text-primary-foreground underline decoration-1 underline-offset-4 transition-colors hover:decoration-2"
                 >
-                  WhatsApp · {site.whatsapp.number}
-                  <span className="sr-only"> (opens in a new tab)</span>
+                  Leave a client review
                 </a>
-                .
+                . Reviews are checked and published only with permission.
               </p>
 
               <p className="mt-6 flex items-start gap-2 text-sm leading-relaxed text-on-brand-muted">

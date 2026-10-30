@@ -26,6 +26,14 @@ export function SiteHeader() {
                   Work
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/blog"
+                  className="text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Blog
+                </Link>
+              </li>
               <li className="hidden sm:block">
                 <Link
                   href="/#services"

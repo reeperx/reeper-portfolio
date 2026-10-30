@@ -30,7 +30,7 @@ export function CopyEmail({ email }: { email: string }) {
       type="button"
       variant="outline"
       onClick={copy}
-      className="h-auto rounded-full border-on-brand/40 bg-transparent px-4 py-2 text-sm font-medium text-on-brand hover:border-on-brand hover:bg-on-brand hover:text-primary focus-visible:border-on-brand focus-visible:ring-on-brand/60"
+      className="h-8 shrink-0 rounded-full border-on-brand/30 bg-on-brand px-3 text-xs font-semibold text-primary hover:border-on-brand hover:bg-paper hover:text-primary focus-visible:border-on-brand focus-visible:ring-on-brand/60 dark:border-on-brand/30 dark:bg-on-brand dark:text-primary dark:hover:bg-paper dark:hover:text-primary sm:h-9 sm:px-4 sm:text-sm"
     >
       <span aria-live="polite">{copied ? "Copied" : "Copy email"}</span>
     </Button>

@@ -173,6 +173,151 @@
   }
 }
 
+.article-prose {
+  color: var(--foreground);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+
+.article-prose > * + * {
+  margin-top: 1.25em;
+}
+
+.article-prose h1,
+.article-prose h2,
+.article-prose h3,
+.article-prose h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  scroll-margin-top: 6rem;
+  text-wrap: balance;
+}
+
+.article-prose h1 {
+  margin-top: 2.5em;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.article-prose h2 {
+  margin-top: 2.25em;
+  font-size: clamp(1.6rem, 3vw, 2.15rem);
+}
+
+.article-prose h3 {
+  margin-top: 1.9em;
+  font-size: clamp(1.25rem, 2.2vw, 1.55rem);
+}
+
+.article-prose h4 {
+  margin-top: 1.6em;
+  font-size: 1.1rem;
+}
+
+.article-prose p,
+.article-prose ul,
+.article-prose ol,
+.article-prose blockquote,
+.article-prose pre,
+.article-prose table {
+  margin-top: 1.25em;
+}
+
+.article-prose a {
+  color: var(--link);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.article-prose a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.article-prose strong {
+  font-weight: 650;
+}
+
+.article-prose ul,
+.article-prose ol {
+  padding-left: 1.4rem;
+}
+
+.article-prose ul {
+  list-style: disc;
+}
+
+.article-prose ol {
+  list-style: decimal;
+}
+
+.article-prose li + li {
+  margin-top: 0.35rem;
+}
+
+.article-prose blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
+.article-prose code {
+  border-radius: 0.4rem;
+  background: var(--muted);
+  padding: 0.16em 0.4em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875em;
+}
+
+.article-prose pre {
+  overflow-x: auto;
+  border-radius: 1rem;
+  background: #101713;
+  padding: 1.25rem;
+  color: #f2eee3;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.article-prose pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+.article-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.925rem;
+}
+
+.article-prose th,
+.article-prose td {
+  border: 1px solid var(--border);
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.article-prose th {
+  background: var(--muted);
+  font-weight: 600;
+}
+
+.article-prose hr {
+  margin: 2.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.article-prose img {
+  margin: 1.75rem 0;
+}
+
 @keyframes rise {
   from {
     opacity: 0;

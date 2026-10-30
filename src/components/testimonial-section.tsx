@@ -1,22 +1,15 @@
-import Image from "next/image";
+import Link from "next/link";
 
-import { ArrowUpRight } from "@/components/icons";
 import { SectionHeading } from "@/components/section-heading";
 import { StarRating } from "@/components/star-rating";
-import { testimonials } from "@/content/site";
+import { getApprovedReviews } from "@/lib/community-data";
+import { formatDate, initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
+export async function TestimonialSection() {
+  const reviews = await getApprovedReviews();
 
-export function TestimonialSection() {
-  if (testimonials.length === 0) {
+  if (reviews.length === 0) {
     return null;
   }
 
@@ -29,75 +22,79 @@ export function TestimonialSection() {
       <SectionHeading
         id="testimonial-heading"
         title="What clients say"
-        aside="Real words from people who have shipped with TOGB."
+        aside="Approved client reviews, published only with permission. No incentives, no invented quotes."
       />
 
       <div
         className={cn(
           "mt-10 grid gap-6",
-          testimonials.length > 1 ? "md:grid-cols-2" : "max-w-3xl",
+          reviews.length > 1 ? "md:grid-cols-2" : "max-w-3xl",
         )}
       >
-        {testimonials.map((testimonial, index) => (
+        {reviews.slice(0, 4).map((review) => (
           <figure
-            key={`${testimonial.name}-${index}`}
+            key={review.id}
             className="flex flex-col justify-between rounded-2xl border border-border bg-card p-6 sm:p-8"
           >
             <div>
-              {typeof testimonial.rating === "number" ? (
-                <StarRating rating={testimonial.rating} />
-              ) : null}
+              <div className="flex flex-wrap items-center gap-3">
+                {typeof review.rating === "number" ? (
+                  <StarRating rating={review.rating} />
+                ) : null}
+                {review.verified ? (
+                  <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-primary dark:text-sage">
+                    Verified client
+                  </span>
+                ) : null}
+              </div>
               <blockquote
                 className={cn(
                   "font-display text-[clamp(1.35rem,2.3vw,1.9rem)] font-medium leading-[1.3] tracking-[-0.02em]",
-                  typeof testimonial.rating === "number" && "mt-5",
+                  typeof review.rating === "number" && "mt-5",
                 )}
               >
-                “{testimonial.quote}”
+                “{review.quote}”
               </blockquote>
             </div>
 
             <figcaption className="mt-8 flex items-center gap-3 border-t border-border pt-5">
-              {testimonial.image ? (
-                <Image
-                  src={testimonial.image}
-                  alt=""
-                  width={112}
-                  height={112}
-                  sizes="56px"
-                  className="size-12 shrink-0 rounded-full border border-border object-cover"
-                />
-              ) : (
-                <span
-                  aria-hidden="true"
-                  className="grid size-12 shrink-0 place-items-center rounded-full bg-secondary font-display text-sm font-semibold text-secondary-foreground"
-                >
-                  {initials(testimonial.name)}
-                </span>
-              )}
+              <span
+                aria-hidden="true"
+                className="grid size-12 shrink-0 place-items-center rounded-full bg-secondary font-display text-sm font-semibold text-secondary-foreground"
+              >
+                {initials(review.name)}
+              </span>
               <div className="min-w-0">
                 <p className="text-sm font-medium text-foreground">
-                  {testimonial.name}
+                  {review.name}
                 </p>
                 <p className="mt-0.5 text-sm text-muted-foreground">
-                  {testimonial.role}
+                  {[review.role, review.company].filter(Boolean).join(", ")}
                 </p>
-                {testimonial.source ? (
-                  <a
-                    href={testimonial.source.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-link underline decoration-border underline-offset-4 transition-colors hover:decoration-current"
-                  >
-                    {testimonial.source.label}
-                    <ArrowUpRight className="size-3.5" />
-                    <span className="sr-only"> (opens in a new tab)</span>
-                  </a>
+                {review.approvedAt ? (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {formatDate(review.approvedAt)}
+                  </p>
                 ) : null}
               </div>
             </figcaption>
           </figure>
         ))}
+      </div>
+
+      <div className="mt-8 flex flex-wrap items-center gap-4">
+        <Link
+          href="/reviews"
+          className="inline-flex rounded-full border border-border px-5 py-3 text-sm font-semibold transition-colors hover:border-foreground/30 hover:bg-muted"
+        >
+          Read all client reviews
+        </Link>
+        <Link
+          href="/reviews#leave-a-review"
+          className="text-sm font-medium text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground"
+        >
+          Worked together? Leave a review
+        </Link>
       </div>
     </section>
   );

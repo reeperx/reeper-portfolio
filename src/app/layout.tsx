@@ -5,10 +5,12 @@ import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
 
 import { JsonLd } from "@/components/json-ld";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { SiteChrome } from "@/components/site-chrome";
 import { SiteHeader } from "@/components/site-header";
 import { SiteSidebar } from "@/components/site-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { site } from "@/content/site";
+import { getApprovedReviews } from "@/lib/community-data";
 import { buildSiteGraph } from "@/lib/structured-data";
 
 import "./globals.css";
@@ -89,7 +91,9 @@ export const viewport: Viewport = {
   colorScheme: "light dark",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const reviews = await getApprovedReviews();
+
   return (
     <html
       lang="en-ZA"
@@ -97,7 +101,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${display.variable} ${sans.variable}`}
     >
       <body>
-        <JsonLd data={buildSiteGraph()} />
+        <JsonLd data={buildSiteGraph(reviews)} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -110,9 +114,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           >
             Skip to content
           </a>
-          <SiteSidebar />
-          <SiteHeader />
-          <div className="lg:pl-[17rem]">{children}</div>
+          <SiteChrome
+            sidebar={<SiteSidebar />}
+            header={<SiteHeader />}
+          >
+            {children}
+          </SiteChrome>
           <ScrollToTop />
         </ThemeProvider>
         <Analytics />

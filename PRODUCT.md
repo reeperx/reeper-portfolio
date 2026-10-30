@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, and Vercel. This is an existing codebase; the rebrand extends it rather than starting over.
+Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, Neon Postgres, Resend, and Vercel. This is an existing codebase; the rebrand extends it rather than starting over.
 
 ## Users
 
@@ -24,17 +24,20 @@ One senior developer owns the whole job: design, build, deploy, and handover. No
 
 ## Operating Context
 
-Visitors arrive from referrals, social profiles, and search. They scan work, services, and proof, then use the contact form, email, or WhatsApp. The site is maintained as a single Next.js app on Vercel, with Resend for inquiry email and Vercel Web Analytics for aggregate usage.
+Visitors arrive from referrals, social profiles, search, and shared blog posts. They scan work, services, writing, and proof, then use the contact form, email, or WhatsApp. The site is maintained as a single Next.js app on Vercel, with Neon Postgres for the journal, comments, likes, and reviews, Resend for email, and Vercel Web Analytics for aggregate usage.
 
 ## Capabilities and Constraints
 
-- Single-page portfolio with work, services, about, FAQ, testimonials, and contact sections. The testimonial section only renders when real client words are present.
+- Single-page portfolio with work, services, about, FAQ, approved client reviews, and contact sections. The review section only renders when approved, permissioned reviews exist.
 - Full work index at `/work`; legal pages at `/privacy` and `/terms`.
 - Contact form posts to `/api/contact`, is validated server-side, and is delivered by Resend.
-- Vercel Web Analytics is cookieless; there is no advertising tracking.
-- No sample testimonials ship. Review and AggregateRating schema are emitted only for real, permissioned client entries. The testimonial section stays hidden while the array is empty.
+- Public journal at `/blog`, Markdown post pages, RSS at `/blog/rss.xml`, social sharing, and a Postgres-backed admin CMS at `/admin`.
+- Threaded reader comments with replies, moderation, and anonymous toggleable likes. Comments require a name and email; email stays private; depth is capped at 3. Comment and reply forms open in accessible dialogs.
+- Client reviews are submitted at `/reviews` in an accessible dialog, stored as `pending`, and published only after admin approval and verification against client records. The homepage section and review schema use approved reviews only.
+- Vercel Web Analytics is cookieless; there is no advertising tracking. The only community cookie is the HttpOnly `togb_visitor` identifier used to deduplicate comment likes.
+- No sample reviews ship. Review and `AggregateRating` schema are emitted only for real, permissioned client reviews. The review section stays hidden while there are none.
 - Keep the GitHub `Verify` workflow green: PR required, linear history, resolved conversations.
-- No custom domain or final Vercel project name has been confirmed for the TOGB deployment.
+- The final custom domain and Vercel project name are not confirmed. `togb-portfolio` is the current brand-consistent deployment target.
 
 ## Brand Commitments
 
@@ -50,8 +53,9 @@ Visitors arrive from referrals, social profiles, and search. They scan work, ser
 - Real public project deployments are listed in `src/content/projects.ts`; the work index is a snapshot of public Vercel projects.
 - Real portrait supplied at `/home/reeper/Pictures/WhatsApp Image 2026-10-29 at 09.59.51.jpeg`; the anime-style version was generated with Higgsfield.
 - Hero image generated with Higgsfield.
-- No permissioned client testimonials, logos, ratings, press, or case-study metrics are on hand. The testimonial section is hidden until real words are supplied.
-- The public WhatsApp number is 071 788 4230, linked as `https://wa.me/27717884230` and exposed as `+27717884230` in structured data.
+- No permissioned client reviews, logos, ratings, press, or case-study metrics are on hand yet. The review section is hidden until a real client submits a review and it is approved; do not scrape, invent, or reuse reviews from dead sites.
+- The public review and comment system is the only legitimate route for collecting new proof. It requires client confirmation and publication consent before a review can be approved.
+- WhatsApp is linked as `https://wa.me/27717884230` and exposed as `+27717884230` in structured data. The number is not rendered as visible text anywhere in the interface.
 
 ## Product Principles
 
@@ -59,7 +63,7 @@ Visitors arrive from referrals, social profiles, and search. They scan work, ser
 2. Make the offer legible in one scan: who, what, where, and how to start.
 3. Keep the path from interest to inquiry short and human.
 4. Build for speed, accessibility, and maintainability; the site is the proof.
-5. Never invent proof. Publish only what is real; the testimonial section stays hidden until it is.
+5. Never invent proof. Publish only what is real, permissioned, and checked; the review section stays hidden until an approved review exists.
 
 ## Accessibility & Inclusion
 

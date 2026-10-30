@@ -1,5 +1,10 @@
 import { publishedProjects } from "@/content/projects";
-import { faqs, services, site, testimonials, tools } from "@/content/site";
+import { faqs, services, site, tools } from "@/content/site";
+import type {
+  BlogPost,
+  BlogPostSummary,
+  PublicReview,
+} from "@/lib/community-data";
 import { absoluteUrl } from "@/lib/seo";
 
 const rootUrl = absoluteUrl("/");
@@ -27,40 +32,40 @@ const areaServed = [
 
 const hasPlaceholderEmail = site.email.endsWith("@example.com");
 
-export function buildSiteGraph() {
-  const reviews = testimonials.map((testimonial) => ({
+export function buildSiteGraph(reviews: PublicReview[] = []) {
+  const reviewNodes = reviews.map((review) => ({
     "@type": "Review",
     author: {
       "@type": "Person",
-      name: testimonial.name,
+      name: review.name,
     },
-    ...(typeof testimonial.rating === "number"
+    ...(typeof review.rating === "number"
       ? {
           reviewRating: {
             "@type": "Rating",
-            ratingValue: testimonial.rating,
+            ratingValue: review.rating,
             bestRating: 5,
             worstRating: 1,
           },
         }
       : {}),
-    reviewBody: testimonial.quote,
-    ...(testimonial.source?.href ? { url: testimonial.source.href } : {}),
+    reviewBody: review.quote,
+    datePublished: review.approvedAt ?? review.createdAt,
     itemReviewed: { "@id": serviceId },
   }));
 
-  const ratedTestimonials = testimonials.filter(
-    (testimonial) => typeof testimonial.rating === "number",
+  const ratedReviews = reviews.filter(
+    (review) => typeof review.rating === "number",
   );
 
   const averageRating =
-    ratedTestimonials.length > 0
+    ratedReviews.length > 0
       ? Number(
           (
-            ratedTestimonials.reduce(
-              (total, testimonial) => total + (testimonial.rating ?? 0),
+            ratedReviews.reduce(
+              (total, review) => total + (review.rating ?? 0),
               0,
-            ) / ratedTestimonials.length
+            ) / ratedReviews.length
           ).toFixed(1),
         )
       : null;
@@ -111,13 +116,13 @@ export function buildSiteGraph() {
         },
       })),
     },
-    ...(reviews.length > 0 ? { review: reviews } : {}),
+    ...(reviewNodes.length > 0 ? { review: reviewNodes } : {}),
     ...(averageRating !== null
       ? {
           aggregateRating: {
             "@type": "AggregateRating",
             ratingValue: averageRating,
-            reviewCount: ratedTestimonials.length,
+            reviewCount: ratedReviews.length,
             bestRating: 5,
             worstRating: 1,
           },
@@ -172,6 +177,115 @@ export function buildHomePageSchema() {
     isPartOf: { "@id": websiteId },
     about: { "@id": serviceId },
     dateModified: site.contentUpdated,
+  };
+}
+
+export function buildBlogIndexSchema(posts: BlogPostSummary[]) {
+  const blogUrl = absoluteUrl("/blog");
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": `${blogUrl}#blog`,
+    url: blogUrl,
+    name: `Blog — ${site.name}`,
+    description:
+      "Notes on building fast, considered websites and web apps for small teams.",
+    inLanguage: "en-ZA",
+    isPartOf: { "@id": websiteId },
+    publisher: { "@id": personId },
+    blogPost: posts.map((post) => ({
+      "@type": "BlogPosting",
+      "@id": absoluteUrl(`/blog/${post.slug}`),
+      headline: post.title,
+      url: absoluteUrl(`/blog/${post.slug}`),
+      description: post.excerpt,
+      datePublished: post.publishedAt,
+      dateModified: post.updatedAt,
+      image: post.coverImageUrl
+        ? absoluteUrl(post.coverImageUrl)
+        : socialImageUrl,
+      keywords: post.tags.join(", "),
+      author: { "@id": personId },
+      publisher: { "@id": personId },
+    })),
+  };
+}
+
+export function buildBlogPostSchema(post: BlogPost) {
+  const postUrl = absoluteUrl(`/blog/${post.slug}`);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `${postUrl}#article`,
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    url: postUrl,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": postUrl,
+    },
+    image: post.coverImageUrl
+      ? [absoluteUrl(post.coverImageUrl)]
+      : [socialImageUrl],
+    author: { "@id": personId },
+    publisher: { "@id": personId },
+    isPartOf: { "@id": `${absoluteUrl("/blog")}#blog` },
+    inLanguage: "en-ZA",
+    keywords: post.tags.join(", "),
+    articleSection: post.tags,
+  };
+}
+
+export function buildReviewsPageSchema(reviews: PublicReview[]) {
+  const reviewsUrl = absoluteUrl("/reviews");
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${reviewsUrl}#webpage`,
+    url: reviewsUrl,
+    name: `Client reviews — ${site.name}`,
+    description:
+      "Reviews from clients who have worked with TOGB, published only with permission.",
+    inLanguage: "en-ZA",
+    isPartOf: { "@id": websiteId },
+    about: { "@id": serviceId },
+    ...(reviews.length > 0
+      ? {
+          mainEntity: {
+            "@type": "ItemList",
+            numberOfItems: reviews.length,
+            itemListElement: reviews.map((review, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              item: {
+                "@type": "Review",
+                author: {
+                  "@type": "Person",
+                  name: review.name,
+                },
+                reviewBody: review.quote,
+                datePublished: review.approvedAt ?? review.createdAt,
+                ...(typeof review.rating === "number"
+                  ? {
+                      reviewRating: {
+                        "@type": "Rating",
+                        ratingValue: review.rating,
+                        bestRating: 5,
+                        worstRating: 1,
+                      },
+                    }
+                  : {}),
+                itemReviewed: { "@id": serviceId },
+              },
+            })),
+          },
+        }
+      : {}),
   };
 }
 

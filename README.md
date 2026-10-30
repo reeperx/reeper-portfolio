@@ -11,9 +11,12 @@ quick to make yours.
 - Next.js 16 (App Router) with React 19
 - Tailwind CSS v4
 - TypeScript
+- Neon Postgres for blog posts, comments, likes, reviews, and rate limits
 - shadcn/ui primitives (Radix UI) on semantic design tokens
 - next-themes for a system-first light/dark mode
 - Vercel Web Analytics for cookieless, aggregate page views
+- Resend for contact-form and review-notification email
+- Markdown rendering with `react-markdown`, `remark-gfm`, and `rehype-slug`
 - Playwright + axe-core for browser and accessibility checks
 - Fonts: Bricolage Grotesque (display) and Instrument Sans (text), both via
   `next/font/google`
@@ -26,7 +29,7 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Then open http://localhost:3000. Set the two public values in `.env.local`
+Then open http://localhost:3000. Set the public values in `.env.local`
 before production:
 
 ```bash
@@ -38,11 +41,34 @@ NEXT_PUBLIC_CONTACT_EMAIL=hello@yourdomain.com
 drives canonical URLs, the sitemap, robots, Open Graph/Twitter metadata, and
 JSON-LD. Until it is set, the build uses `https://example.com` as an obvious
 placeholder. `NEXT_PUBLIC_CONTACT_EMAIL` controls the public address in the
-contact panel and structured data. The WhatsApp number is in
-`site.whatsapp` in `src/content/site.ts`.
+contact panel and structured data. The WhatsApp link and E.164 value live in
+`site.whatsapp` in `src/content/site.ts`; the number is linked, not rendered as
+visible text.
 
-Fill in the Resend values too if you want the contact form to send mail; the
-rest of the site runs without them.
+The blog, comments, and reviews need a Postgres database. Create a free Neon
+project, copy the pooled connection string into `DATABASE_URL`, then apply the
+schema once:
+
+```bash
+psql "$DATABASE_URL" -f db/schema.sql
+```
+
+The schema creates `blog_posts`, `comments`, `comment_likes`, `reviews`, and
+`rate_limits`. It is safe to run again because every statement uses
+`IF NOT EXISTS` or a guarded constraint. The site still builds without a
+database, but the blog and review pages show their empty states and
+submissions return a clear configuration error.
+
+Set the admin and hashing secrets before using `/admin`:
+
+```bash
+ADMIN_PASSWORD=use-a-long-random-password
+ADMIN_SESSION_SECRET=$(openssl rand -hex 32)
+IP_HASH_SALT=$(openssl rand -hex 32)
+```
+
+Fill in the Resend values too if you want the contact form and review
+notifications to send mail; the rest of the site runs without them.
 
 Useful checks:
 
@@ -95,6 +121,63 @@ If you use the Resend CLI, `resend doctor` checks authentication and domain
 status, and `resend domains list` shows verified sending domains. For
 production, add the same variables in Vercel and redeploy.
 
+## Blog, comments, reviews, and admin
+
+The public journal lives at `/blog`, with a post page at `/blog/[slug]`, an
+RSS feed at `/blog/rss.xml`, and a linked share row on every post. Posts are
+stored in Postgres and rendered from Markdown. The sitemap includes the index,
+published posts, and their cover images; the blog index and RSS feed revalidate
+on a short cache.
+
+### Admin
+
+Go to `/admin/login` and sign in with `ADMIN_PASSWORD`. The session is signed
+with `ADMIN_SESSION_SECRET` and stored in an HttpOnly, same-site cookie. Admin
+routes are dynamic, excluded from the public navigation, and disallowed in
+`robots.txt`.
+
+- **Posts** — create a post with a slug, title, excerpt, Markdown body, optional
+  tags and cover image, and a draft or published state. Publishing sets
+  `published_at` if it is empty. Edits revalidate the affected public pages.
+- **Comments** — approve, reject, mark as spam, or delete. Only approved
+  comments and their approved parents are public. Replies are capped at depth 3.
+- **Reviews** — approve, reject, delete, and toggle the “Verified client” badge.
+  Approving sets `approved_at`; rejecting or deleting removes the review from
+  public pages. Only approved reviews feed the homepage section, `/reviews`, and
+  structured data.
+
+### Reader submissions
+
+Comments require a name, email, and comment; the email is stored privately.
+The form includes a honeypot and same-origin/body-size checks, and the API
+validates again with zod. New comments start as `pending`. Approved comments
+render as a threaded tree, with a reply form on each comment until depth 3.
+
+Comment likes are anonymous and toggleable. The API combines a first-party
+HttpOnly `togb_visitor` cookie with a salted hash of the request IP and
+user-agent, so the same browser cannot count the same like twice. Likes use the
+same moderation boundary as comments: only approved comments can be liked.
+
+Reviews require the client’s name, email, review text, a confirmation that they
+worked with TOGB, and consent to publication. Company, role, and rating are
+optional. New reviews start as `pending` and trigger a Resend notification when
+email is configured. The admin must check the email against client records
+before approving. No review is invented, scraped, or published without consent.
+If there are no approved reviews, the homepage section stays hidden and
+`/reviews` shows an honest empty state.
+
+### Rate limits and retention
+
+Submission and like endpoints use a Postgres-backed fixed-window limiter keyed
+by a salted request fingerprint. The tables and limits are in
+[`db/schema.sql`](db/schema.sql). The privacy policy describes the retention
+window: approved content stays while published; removed or rejected content is
+kept only for a limited moderation/audit period and normally deleted within
+12 months. Pending submissions are normally deleted within 12 months.
+
+The admin password, session secret, and IP hash salt are server-only. Never
+prefix them with `NEXT_PUBLIC_`, and never commit `.env.local`.
+
 ## Legal pages
 
 `/privacy` and `/terms` live in the `(legal)` route group. They share the site
@@ -106,10 +189,12 @@ The privacy policy describes the current data flow: inquiry details go to the
 configured inbox through Resend, WhatsApp messages go through Meta’s WhatsApp
 service, the site is hosted on Vercel, Vercel Web Analytics collects cookieless
 aggregate page views, there is no advertising tracking, and the theme preference
-stays in browser local storage. It covers POPIA, the Information Regulator,
-retention, cross-border processing, and visitor rights. The terms cover
-acceptable use, intellectual property, inquiries, warranties, liability, and
-South African governing law.
+stays in browser local storage. It also covers the Neon database that stores
+blog posts, comments, reviews, likes, and rate limits; the `togb_visitor`
+cookie used for comment likes; moderation; retention; and the admin session.
+The terms cover acceptable use, intellectual property, inquiries, warranties,
+liability, South African governing law, and the comment and review rules
+(moderation, consent, the user-content licence, verification, and removal).
 
 These are plain-language starting points, not legal advice. Review both pages
 with a South African lawyer before launch, and update them if the data flow
@@ -135,14 +220,13 @@ prose lives with its section.
    year. The homepage grid shows four rows per page and links to `/work`, which
    server-renders the full published index.
 3. **Services** — edit `services` with your actual offers and timelines.
-4. **Testimonials** — edit the `testimonials` array in
-   [`src/content/site.ts`](src/content/site.ts). It is empty by default, so the
-   section stays hidden until you add real client material you have permission
-   to publish. Add the exact quote, name, and role; `image`, `rating`, and
-   `source` are optional, and you should omit any rating the client did not give.
-   The section is server-rendered, so the quote is crawlable and needs no
-   carousel JavaScript. Review structured data is emitted only for the entries
-   you add; there are no sample reviews in the codebase.
+4. **Reviews** — do not edit a hard-coded testimonial array. Reviews are
+   submitted through `/reviews`, stored in Postgres, and published only after
+   admin approval. Use `/admin/reviews` to approve a real client review and,
+   when you have checked the client relationship, add the “Verified client”
+   badge. The homepage section stays hidden until at least one review is
+   approved. Omit a rating if the client did not give one; never invent or
+   scrape a review. See [Blog, comments, reviews, and admin](#blog-comments-reviews-and-admin).
 5. **Hero and about prose** — the headline and intro are in
    [`src/components/hero.tsx`](src/components/hero.tsx); the bio is in
    [`src/components/about.tsx`](src/components/about.tsx); the contact copy is
@@ -178,28 +262,34 @@ The public SEO surface is environment-driven and covered by Playwright:
 - [`src/lib/structured-data.ts`](src/lib/structured-data.ts) emits shared
   `WebSite`, `Person`, and `ProfessionalService` nodes in the layout. The home
   page adds its own `WebPage` and `FAQPage` nodes; `/work` adds a
-  `CollectionPage` with an `ItemList` of every published project, and legal
-  pages add `BreadcrumbList` schema. The service node includes the WhatsApp
-  telephone number, a `ContactPoint`, the logo, and the founding date.
-- Review and `AggregateRating` schema is emitted only for real testimonials in
-  `site.ts`. The array ships empty, so no fabricated review markup can ship.
+  `CollectionPage` with an `ItemList` of every published project; `/blog` adds a
+  `Blog` and `CollectionPage`; post pages add `BlogPosting`; `/reviews` adds a
+  `CollectionPage` and `ItemList`; and legal pages add `BreadcrumbList` schema.
+  The service node includes the WhatsApp telephone number, a `ContactPoint`,
+  the logo, and the founding date.
+- Review and `AggregateRating` schema is emitted only for approved database
+  reviews. Pending, rejected, and deleted reviews never appear in schema. When
+  there are no approved reviews, no review markup is emitted and the homepage
+  section is hidden.
 - The visible FAQ is sourced from `faqs` in `site.ts`; the same content feeds
   the `FAQPage` schema. Keep the two in sync.
 - A dated SEO audit and content roadmap live in
   [`docs/seo/2026-10-29-seo-audit.md`](docs/seo/2026-10-29-seo-audit.md).
 - `/work` is a server-rendered, canonical page listing every published project;
-  the homepage links to it. `sitemap.xml` includes home, work, legal pages, and
-  project images, with the legal pages using `site.legalUpdatedIso` rather than
-  the work-content date. `robots.txt` disallows `/api/`, and the web manifest
-  plus security headers are generated by `manifest.ts` and `next.config.ts`.
+  the homepage links to it. `sitemap.xml` includes home, work, blog, published
+  posts, reviews, legal pages, and project/cover images, with the legal pages
+  using `site.legalUpdatedIso` rather than the work-content date. `robots.txt`
+  disallows `/api/` and `/admin`, and the web manifest plus security headers are
+  generated by `manifest.ts` and `next.config.ts`.
 - `site.contentUpdated` is the stable ISO date used for sitemap `lastmod` and
   schema `dateModified`; bump it when the content changes.
 
 After setting the public variables, check the generated `<head>`, `/work`,
-`/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest`, and the social image
-routes on a production build. The e2e suite covers canonical/social metadata,
-JSON-LD (including the no-fake-reviews guard), sitemap/robots/manifest, security
-headers, `/work` server rendering, and its accessibility scan.
+`/blog`, a published post, `/reviews`, `/sitemap.xml`, `/robots.txt`,
+`/manifest.webmanifest`, and the social image routes on a production build.
+The e2e suite covers canonical/social metadata, JSON-LD (including the
+no-fake-reviews guard), sitemap/robots/manifest, security headers, `/work`
+server rendering, blog/review routes, admin login, and accessibility scans.
 
 ### Work index
 
@@ -304,8 +394,11 @@ explicitly approved step.
 - [ ] Set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` and/or
       `NEXT_PUBLIC_BING_SITE_VERIFICATION`, verify the domain in Google Search
       Console and Bing Webmaster Tools, and submit `sitemap.xml`
-- [ ] Add at least one real client testimonial (with permission) to
-      `testimonials`; the section stays hidden while the array is empty
+- [ ] Add at least one real client review through `/reviews` and approve it in
+      `/admin/reviews`; the homepage section stays hidden until a review is
+      approved
+- [ ] Publish the first real blog post in `/admin/posts` and confirm it appears
+      in `/blog`, the RSS feed, and `sitemap.xml`
 - [ ] Claim or create a Google Business Profile, keep the name, Gauteng service
       area, email, and WhatsApp number consistent, and ask real clients for
       reviews there
@@ -336,9 +429,18 @@ production build:
 
 - `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_CONTACT_EMAIL` for the public site.
 - `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, and `RESEND_FROM_EMAIL` for the contact
-  form.
+  form and review notifications.
+- `DATABASE_URL` for the Neon Postgres database.
+- `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, and `IP_HASH_SALT` for the admin
+  login and hashed request fingerprints.
 - Optional: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` and
   `NEXT_PUBLIC_BING_SITE_VERIFICATION`.
+
+Apply the schema to the production database once before the first deploy:
+
+```bash
+psql "$DATABASE_URL" -f db/schema.sql
+```
 
 The root layout mounts `@vercel/analytics`. Enable Web Analytics for the project
 in the Vercel dashboard or with:
@@ -366,18 +468,34 @@ src/
   app/
     (legal)/layout.tsx  policy-page shell with main landmark and footer
     (legal)/privacy/page.tsx  privacy policy
-    (legal)/terms/page.tsx    terms of use
+    (legal)/terms/page.tsx    terms of use, including comment/review rules
+    admin/             password-protected dashboard, post editor, moderation
+    api/blog/comments/ validated comment submission and like toggle
     api/contact/route.ts  validated Resend contact endpoint
+    api/reviews/route.ts  validated review submission and notification
+    blog/page.tsx      published post index and empty state
+    blog/[slug]/page.tsx  Markdown post, share controls, comments, schema
+    blog/rss.xml/route.ts  RSS 2.0 feed
+    reviews/page.tsx   approved reviews and review popup
     layout.tsx        fonts, metadata, providers, shell
     page.tsx          section order, main landmark, footer
     work/page.tsx     server-rendered full project index
-    globals.css       semantic tokens, base styles, grain, motion
+    globals.css       semantic tokens, base styles, article prose, grain
     not-found.tsx     404
     manifest.ts       web manifest
     opengraph-image.tsx / twitter-image.tsx  generated social cards
     robots.ts         robots.txt
-    sitemap.ts        sitemap.xml with project images
+    sitemap.ts        sitemap.xml with projects, posts, and reviews
   components/
+    comment-dialog.tsx accessible comment/reply popup (client)
+    comment-form.tsx  validated reader comment/reply form (client)
+    comment-like-button.tsx  toggleable like control (client)
+    comment-section.tsx  threaded comments and reply popups
+    review-dialog.tsx  accessible review form popup (client)
+    review-form.tsx   consent-based client review form (client)
+    ui/dialog.tsx     shared accessible dialog primitive (client)
+    blog-share.tsx    WhatsApp, X, Facebook, LinkedIn, copy, native share
+    markdown.tsx      safe Markdown renderer with heading ids
     legal-page.tsx    shared legal page, section, and link primitives
     json-ld.tsx       safe JSON-LD script renderer
     site-sidebar.tsx  fixed desktop rail, icon nav, Studio card
@@ -390,7 +508,7 @@ src/
     work-grid.tsx     paginated project rows (client)
     services.tsx
     about.tsx
-    testimonial-section.tsx  static, permissioned client quotes
+    testimonial-section.tsx  approved database reviews; hidden when empty
     faq.tsx           visible FAQ sourced from site.ts
     contact.tsx       contact section
     contact-form.tsx  validated brief form (client)
@@ -398,16 +516,27 @@ src/
     copy-email.tsx    copy-to-clipboard button (client)
     ui/               shadcn/ui primitives
   lib/
+    admin-data.ts     admin queries and dashboard counts
+    admin-session.ts  signed HttpOnly admin session
+    community-data.ts public posts, reviews, comments, likes, caches
+    community-schema.ts  zod schemas for posts, comments, reviews, login
     contact-schema.ts shared zod schema and field errors
+    database.ts       Neon client and configuration check
     email/contact-inquiry.ts  table-based HTML and text email
+    rate-limit.ts     Postgres fixed-window limiter
+    request-security.ts  origin, body-size, and request checks
     seo.ts            absolute URL, host, and social image helpers
-    structured-data.ts  site, work, FAQ, and breadcrumb JSON-LD
+    structured-data.ts  site, work, blog, review, FAQ, and breadcrumb JSON-LD
     utils.ts          app-level cn helper
+    validation.ts     shared validation helpers
+    visitor.ts        visitor cookie and hashed request fingerprint
   content/
-    site.ts           identity, navigation, services, tools, FAQ, testimonials
+    site.ts           identity, navigation, services, tools, FAQ
     projects.ts       Vercel snapshot, published rows, skipped records
+db/
+  schema.sql          Neon tables, indexes, constraints, updated-at trigger
 e2e/
-  portfolio.spec.ts   browser, theme, and axe coverage
+  portfolio.spec.ts   browser, theme, blog/review/admin, and axe coverage
 playwright.config.ts  four desktop/mobile light/dark projects
 public/
   images/             generated hero and anime portrait artwork

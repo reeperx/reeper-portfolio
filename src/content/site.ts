@@ -35,7 +35,6 @@ export const site = {
   url: siteUrl,
   whatsapp: {
     label: "WhatsApp",
-    number: "071 788 4230",
     e164: "+27717884230",
     href: "https://wa.me/27717884230",
   },
@@ -59,6 +58,7 @@ export const site = {
   ],
   nav: [
     { label: "Work", href: "/#work" },
+    { label: "Blog", href: "/blog" },
     { label: "Services", href: "/#services" },
     { label: "About", href: "/#about" },
     { label: "Contact", href: "/#contact" },
@@ -118,25 +118,6 @@ export const tools = [
   "Vercel",
   "Figma",
 ];
-
-export type Testimonial = {
-  quote: string;
-  name: string;
-  role: string;
-  /** Optional portrait. When omitted, the card shows the client's initials. */
-  image?: string;
-  /** Whole-number rating from 1 to 5. Only publish a real rating. */
-  rating?: number;
-  /** Optional link to the original review or the client's site. */
-  source?: {
-    label: string;
-    href: string;
-  };
-};
-
-// Add entries only after the client has approved the exact words, attribution,
-// and rating. Leave this empty to hide the testimonial section entirely.
-export const testimonials: Testimonial[] = [];
 
 export type Faq = {
   question: string;

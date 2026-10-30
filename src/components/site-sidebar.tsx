@@ -5,6 +5,7 @@ import { Clock } from "@/components/clock";
 import {
   AboutIcon,
   ContactIcon,
+  JournalIcon,
   ServicesIcon,
   WorkIcon,
 } from "@/components/icons";
@@ -17,6 +18,7 @@ type NavIcon = ComponentType<{ className?: string }>;
 
 const navIcons: Record<string, NavIcon> = {
   Work: WorkIcon,
+  Blog: JournalIcon,
   Services: ServicesIcon,
   About: AboutIcon,
   Contact: ContactIcon,
