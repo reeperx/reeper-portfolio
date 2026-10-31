@@ -29,9 +29,10 @@ jobs:
     
     env:
       FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      OPENAI_MODEL: gpt-4o-mini
+      LLM_MODEL: ${{ secrets.LLM_MODEL || 'nemotron-3-ultra' }}
+      LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
       POSTS_PER_RUN: ${{ github.event.inputs.posts_per_run || '2' }}
       FORCE_PUBLISH: ${{ github.event.inputs.force_publish || 'false' }}
 
@@ -93,8 +94,10 @@ jobs:
               
               Required secrets:
               - FIRECRAWL_API_KEY
-              - OPENAI_API_KEY
+              - LLM_API_KEY
               - DATABASE_URL
+              - LLM_MODEL (optional)
+              - LLM_BASE_URL (optional)
               `,
               labels: ['automation', 'blog', 'failure'],
             });

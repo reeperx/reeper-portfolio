@@ -1,7 +1,7 @@
 /**
  * Automated Blog Pipeline Orchestrator
  * Runs research → generation → posting pipeline
- * Designed to run via GitHub Actions cron (twice weekly)
+ * Designed to run via GitHub Actions cron (twice weekly) or local cron
  */
 
 import { AITrendResearcher, getTopStories } from './research.js';
@@ -10,9 +10,10 @@ import { BlogPoster } from './post.js';
 
 export interface PipelineConfig {
   firecrawlApiKey: string;
-  openaiApiKey: string;
+  llmApiKey: string;
   databaseUrl: string;
-  openaiModel?: string;
+  llmModel?: string;
+  llmBaseUrl?: string;
   postsPerRun?: number;
   minRelevanceScore?: number;
 }
@@ -35,12 +36,16 @@ export class BlogPipeline {
     this.config = {
       postsPerRun: 2,
       minRelevanceScore: 5,
-      openaiModel: 'gpt-4o-mini',
+      llmModel: 'nemotron-3-ultra',
       ...config,
     };
 
     this.researcher = new AITrendResearcher(this.config.firecrawlApiKey);
-    this.generator = new BlogPostGenerator(this.config.openaiApiKey, this.config.openaiModel);
+    this.generator = new BlogPostGenerator(
+      this.config.llmApiKey,
+      this.config.llmModel,
+      this.config.llmBaseUrl,
+    );
     this.poster = new BlogPoster(this.config.databaseUrl);
   }
 
@@ -53,6 +58,7 @@ export class BlogPipeline {
     try {
       console.log('🔍 Starting automated blog pipeline...');
       console.log(`   Target: ${this.config.postsPerRun} posts`);
+      console.log(`   LLM: ${this.config.llmModel}${this.config.llmBaseUrl ? ` @ ${this.config.llmBaseUrl}` : ''}`);
 
       // Step 1: Research
       console.log('\n📚 Phase 1: Researching AI trends...');
@@ -112,23 +118,29 @@ export class BlogPipeline {
 
 // CLI entry point
 async function main() {
-  const requiredEnv = [
-    'FIRECRAWL_API_KEY',
-    'OPENAI_API_KEY',
-    'DATABASE_URL',
-  ];
+  const requiredEnv = ['FIRECRAWL_API_KEY', 'LLM_API_KEY', 'DATABASE_URL'];
 
   const missing = requiredEnv.filter(key => !process.env[key]);
   if (missing.length > 0) {
     console.error('❌ Missing required environment variables:', missing.join(', '));
+    console.error('\nRequired:');
+    console.error('  FIRECRAWL_API_KEY - Get at https://firecrawl.dev');
+    console.error('  LLM_API_KEY - Your OpenAI-compatible API key');
+    console.error('  DATABASE_URL - Neon Postgres connection string');
+    console.error('\nOptional:');
+    console.error('  LLM_MODEL - Model name (default: nemotron-3-ultra)');
+    console.error('  LLM_BASE_URL - Custom OpenAI-compatible endpoint (e.g., http://localhost:11434/v1 for Ollama)');
+    console.error('  POSTS_PER_RUN - Number of posts per run (default: 2)');
+    console.error('  MIN_RELEVANCE_SCORE - Minimum relevance score (default: 5)');
     process.exit(1);
   }
 
   const config: PipelineConfig = {
     firecrawlApiKey: process.env.FIRECRAWL_API_KEY!,
-    openaiApiKey: process.env.OPENAI_API_KEY!,
+    llmApiKey: process.env.LLM_API_KEY!,
     databaseUrl: process.env.DATABASE_URL!,
-    openaiModel: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    llmModel: process.env.LLM_MODEL || 'nemotron-3-ultra',
+    llmBaseUrl: process.env.LLM_BASE_URL,
     postsPerRun: parseInt(process.env.POSTS_PER_RUN || '2', 10),
     minRelevanceScore: parseInt(process.env.MIN_RELEVANCE_SCORE || '5', 10),
   };

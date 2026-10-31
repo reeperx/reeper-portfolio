@@ -49,10 +49,14 @@ Cover: Ollama/LM Studio setup, model selection for coding tasks, hardware requir
 };
 
 export class BlogPostGenerator {
-  private openai: OpenAI;
+  private client: OpenAI;
 
-  constructor(apiKey: string, model = 'gpt-4o-mini') {
-    this.openai = new OpenAI({ apiKey });
+  constructor(apiKey: string, model = 'gpt-4o-mini', baseUrl?: string) {
+    this.client = new OpenAI({ 
+      apiKey, 
+      baseURL: baseUrl,
+      dangerouslyAllowBrowser: true,
+    });
     this.model = model;
   }
 
@@ -87,7 +91,7 @@ OUTPUT FORMAT (JSON only):
 }`;
 
     try {
-      const response = await this.openai.chat.completions.create({
+      const response = await this.client.chat.completions.create({
         model: this.model,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
