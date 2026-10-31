@@ -1,0 +1,100 @@
+name: Auto Blog - AI Trend Posts
+
+on:
+  schedule:
+    # Runs twice a week: Monday and Thursday at 06:00 UTC (08:00 SAST)
+    - cron: '0 6 * * 1,4'
+  workflow_dispatch:
+    inputs:
+      posts_per_run:
+        description: 'Number of posts to generate (1-4)'
+        required: false
+        default: '2'
+        type: choice
+        options: ['1', '2', '3', '4']
+      force_publish:
+        description: 'Publish immediately instead of draft'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  auto-blog:
+    name: Research & Post AI Trends
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    env:
+      FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      OPENAI_MODEL: gpt-4o-mini
+      POSTS_PER_RUN: ${{ github.event.inputs.posts_per_run || '2' }}
+      FORCE_PUBLISH: ${{ github.event.inputs.force_publish || 'false' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install auto-blog dependencies
+        working-directory: ./scripts/auto-blog
+        run: pnpm install --frozen-lockfile
+
+      - name: Run automated blog pipeline
+        working-directory: ./scripts/auto-blog
+        run: pnpm run run
+        env:
+          FORCE_PUBLISH: ${{ github.event.inputs.force_publish || 'false' }}
+
+      - name: Verify posts created
+        if: always()
+        working-directory: ./scripts/auto-blog
+        run: |
+          echo "Checking recent posts in database..."
+          npx tsx -e "
+            import { neon } from '@neondatabase/serverless';
+            const sql = neon(process.env.DATABASE_URL!);
+            const posts = await sql\`
+              SELECT slug, title, status, created_at 
+              FROM blog_posts 
+              ORDER BY created_at DESC 
+              LIMIT 5
+            \`;
+            console.log('Recent posts:');
+            posts.forEach(p => console.log('  -', p.slug, p.title, p.status, p.created_at));
+          "
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '[Auto Blog] Pipeline failed',
+              body: `The automated blog pipeline failed on ${new Date().toISOString()}.
+              
+              **Workflow**: ${context.workflow}
+              **Run**: ${context.runId}
+              **Error**: Check the workflow logs for details.
+              
+              Required secrets:
+              - FIRECRAWL_API_KEY
+              - OPENAI_API_KEY
+              - DATABASE_URL
+              `,
+              labels: ['automation', 'blog', 'failure'],
+            });

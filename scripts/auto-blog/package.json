@@ -1,0 +1,22 @@
+{
+  "name": "auto-blog",
+  "version": "1.0.0",
+  "description": "Automated AI trend research and blog posting for TOGB",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "run": "tsx index.ts",
+    "research": "tsx research.ts",
+    "generate": "tsx generate.ts",
+    "post": "tsx post.ts"
+  },
+  "dependencies": {
+    "@mendable/firecrawl-js": "^1.0.0",
+    "@neondatabase/serverless": "^1.2.0",
+    "openai": "^4.50.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.15.0",
+    "typescript": "^5.5.0"
+  }
+}
