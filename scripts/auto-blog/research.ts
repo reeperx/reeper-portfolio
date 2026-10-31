@@ -5,6 +5,23 @@
 
 import FirecrawlApp from '@mendable/firecrawl-js';
 
+interface FirecrawlSearchItem {
+  markdown?: string;
+  extract?: {
+    title?: string;
+    summary?: string;
+    keyPoints?: string[];
+    publishDate?: string;
+    author?: string;
+  };
+  metadata?: {
+    title?: string;
+    url?: string;
+    source?: string;
+    publishedAt?: string;
+  };
+}
+
 export interface ResearchResult {
   title: string;
   url: string;
@@ -83,8 +100,8 @@ export class AITrendResearcher {
       }
 
       return results.data
-        .filter((item: any) => item.markdown || item.extract)
-        .map((item: any, index: number) => ({
+        .filter((item: FirecrawlSearchItem) => item.markdown || item.extract)
+        .map((item: FirecrawlSearchItem, index: number) => ({
           title: item.extract?.title || item.metadata?.title || `Result ${index + 1}`,
           url: item.metadata?.url || '',
           summary: item.extract?.summary || item.markdown?.slice(0, 500) || '',
@@ -99,7 +116,7 @@ export class AITrendResearcher {
     }
   }
 
-  private calculateRelevance(item: any, topic: ResearchTopic): number {
+  private calculateRelevance(item: FirecrawlSearchItem, topic: ResearchTopic): number {
     const text = `${item.extract?.summary || ''} ${item.markdown || ''} ${item.metadata?.title || ''}`.toLowerCase();
     let score = 0;
 

@@ -4,6 +4,7 @@
  */
 
 import OpenAI from 'openai';
+import type { ResearchResult } from './research.js';
 
 export interface BlogPost {
   title: string;
@@ -136,7 +137,7 @@ OUTPUT FORMAT (JSON only):
     };
   }
 
-  async generateWeeklyBatch(researchResults: any[]): Promise<BlogPost[]> {
+  async generateWeeklyBatch(researchResults: ResearchResult[]): Promise<BlogPost[]> {
     // Group research by category
     const byCategory: Record<string, string[]> = {};
     for (const result of researchResults) {

@@ -16,7 +16,7 @@ export interface BlogPost {
   status: 'draft' | 'published';
 }
 
-function asArray<T>(result: any): T[] {
+function asArray<T>(result: unknown): T[] {
   return Array.isArray(result) ? result : [];
 }
 
@@ -90,9 +90,9 @@ export class BlogPoster {
     return results;
   }
 
-  async getRecentPosts(limit = 10): Promise<any[]> {
-    const rows = asArray(await this.sql`
-      SELECT id, slug, title, status, published_at, created_at
+  async getRecentPosts(limit = 10): Promise<BlogPost[]> {
+    const rows = asArray<BlogPost>(await this.sql`
+      SELECT id, slug, title, excerpt, content, cover_image_url, cover_image_alt, tags, status, published_at, created_at
       FROM blog_posts
       ORDER BY created_at DESC
       LIMIT ${limit}
