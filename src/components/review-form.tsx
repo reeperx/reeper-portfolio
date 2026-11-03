@@ -232,7 +232,7 @@ export function ReviewForm() {
             htmlFor={field("clientConfirmation")}
             className="text-xs leading-relaxed text-muted-foreground"
           >
-            I confirm that I have worked with TOGB and that this review is my
+            I confirm that I have worked with TBG&apos;s and that this review is my
             own honest experience.
           </label>
         </div>
@@ -255,7 +255,7 @@ export function ReviewForm() {
             htmlFor={field("consent")}
             className="text-xs leading-relaxed text-muted-foreground"
           >
-            I consent to TOGB publishing this review, my name, role, company,
+            I consent to TBG&apos;s publishing this review, my name, role, company,
             and rating on this website and in related marketing. I understand I
             can ask for it to be removed later. Read the{" "}
             <Link

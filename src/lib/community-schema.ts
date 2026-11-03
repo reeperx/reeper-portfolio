@@ -83,7 +83,7 @@ export const reviewSubmissionSchema = z.object({
     .refine((value) => value, "Please consent to publication."),
   clientConfirmation: z
     .boolean()
-    .refine((value) => value, "Please confirm you have worked with TOGB."),
+    .refine((value) => value, "Please confirm you have worked with TBG's."),
 });
 
 export type ReviewSubmission = z.infer<typeof reviewSubmissionSchema>;

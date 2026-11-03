@@ -7,7 +7,7 @@ import { openGraphImage, twitterImage } from "@/lib/seo";
 import { buildBreadcrumbSchema } from "@/lib/structured-data";
 
 const description =
-  "How TOGB collects, uses, and protects personal information submitted through this portfolio, including project inquiries, blog comments, and client reviews.";
+  "How TBG's collects, uses, and protects personal information submitted through this portfolio, including project inquiries, blog comments, and client reviews.";
 
 const canonical = new URL("/privacy", site.url).toString();
 
@@ -253,7 +253,7 @@ export default function PrivacyPage() {
           <p>
             You can also complain to the Information Regulator (South Africa),
             Woodmead North Office Park, 54 Maxwell Drive, Woodmead,
-            Gauteng, 2191; email{" "}
+            Hammanskraal, 2191; email{" "}
             <LegalLink href="mailto:POPIAComplaints@inforegulator.org.za">
               POPIAComplaints@inforegulator.org.za
             </LegalLink>
@@ -286,7 +286,7 @@ export default function PrivacyPage() {
           <p>
             If you like a blog comment, the site sets a first-party{" "}
             <code className="rounded bg-muted px-1 py-0.5 text-xs">
-              togb_visitor
+              tbg_visitor
             </code>{" "}
             cookie. It is HttpOnly, lasts up to one year, and is used only to
             stop the same browser from counting the same like twice. It is not

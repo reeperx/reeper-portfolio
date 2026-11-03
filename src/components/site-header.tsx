@@ -9,7 +9,7 @@ export function SiteHeader() {
       <div className="flex items-center justify-between gap-3 px-5 py-4">
         <Link
           href="/#top"
-          aria-label="TOGB — home"
+          aria-label="TBG's — home"
           className="inline-flex items-baseline"
         >
           <Wordmark className="text-2xl" />

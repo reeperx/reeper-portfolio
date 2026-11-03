@@ -14,7 +14,7 @@ import {
 } from "@/lib/structured-data";
 
 const description =
-  "A complete index of websites and web apps built by TOGB, an independent web developer in Gauteng.";
+  "A complete index of websites and web apps built by TBG's, an independent web developer in Hammanskraal.";
 
 export const metadata: Metadata = {
   title: "Selected work",

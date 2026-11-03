@@ -18,7 +18,7 @@ import {
 } from "@/lib/structured-data";
 
 const description =
-  "Client reviews of TOGB, published only with permission and checked against real project work.";
+  "Client reviews of TBG's, published only with permission and checked against real project work.";
 
 export const metadata: Metadata = {
   title: "Client reviews",
@@ -76,7 +76,7 @@ export default async function ReviewsPage() {
           </div>
           <div className="max-w-md lg:justify-self-end">
             <p className="text-sm leading-relaxed text-muted-foreground">
-              These are reviews from people who have actually worked with TOGB.
+              These are reviews from people who have actually worked with TBG&apos;s.
               Every one is published only after the client confirms it and I
               check it against project records.
             </p>

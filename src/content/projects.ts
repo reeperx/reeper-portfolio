@@ -99,13 +99,13 @@ export const publishedProjects: WorkProject[] = [
   },
   {
     vercelProject: "agency",
-    name: "TOGB Agency",
+    name: "TBG's Agency",
     href: "https://agency-peach-eight.vercel.app",
     image: "/projects/agency.jpg",
     imageAlt:
-      "TOGB agency homepage with a dark hero and a call to discuss a project.",
+      "TBG's agency homepage with a dark hero and a call to discuss a project.",
     summary:
-      "The studio site for TOGB, a South African web development agency: services, selected projects, and a direct enquiry path.",
+      "The studio site for TBG's, a South African web development agency: services, selected projects, and a direct enquiry path.",
     tags: ["Next.js", "Agency"],
     year: "2025",
     createdAt: "2025-03-06",
@@ -225,11 +225,11 @@ export const publishedProjects: WorkProject[] = [
   },
   {
     vercelProject: "ai-togb",
-    name: "TOGB AI",
+    name: "TBG's AI",
     href: "https://ai-togb.vercel.app",
     image: "/projects/ai-togb.jpg",
     imageAlt:
-      "TOGB AI homepage with a yellow and black hero for AI video production.",
+      "TBG's AI homepage with a yellow and black hero for AI video production.",
     summary:
       "A conversion-focused landing page for an AI video studio producing long- and short-form content for brands.",
     tags: ["Next.js", "AI"],
@@ -456,7 +456,7 @@ export const skippedProjects: SkippedProject[] = [
   },
   {
     vercelProject: "togb-portfolio",
-    name: "TOGB Portfolio",
+    name: "TBG's Portfolio",
     href: "https://togb-portfolio.vercel.app",
     status: "incomplete",
     note: "Landing page loads; scrolling throws a client-side exception.",

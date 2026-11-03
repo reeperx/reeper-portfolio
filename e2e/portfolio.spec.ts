@@ -110,7 +110,7 @@ test("social and contact links appear exactly once", async ({ page }, testInfo) 
   ).toHaveAttribute("href", "https://github.com/reeperx");
   await expect(whatsappLink).toHaveAttribute(
     "href",
-    "https://wa.me/27717884230",
+    "https://wa.me/27607804812",
   );
   await expect(whatsappLink).not.toContainText("071 788 4230");
   await expect(whatsappLink).not.toContainText("+27");
@@ -122,7 +122,7 @@ test("social and contact links appear exactly once", async ({ page }, testInfo) 
     .poll(() => page.locator("body").innerText())
     .not.toContain("071 788 4230");
   await expect(legalLinks).toHaveCount(2);
-  await expect(footer.getByText(/The Original Brand/)).toBeVisible();
+  await expect(footer.getByText(/The Brand Group/)).toBeVisible();
   await expect(
     legalLinks.filter({ hasText: "Privacy Policy" }),
   ).toHaveAttribute("href", "/privacy");
@@ -381,8 +381,8 @@ test("robots and manifest expose crawl and install metadata", async ({
     start_url?: string;
     icons?: Array<{ src?: string }>;
   };
-  expect(manifest.name).toContain("TOGB");
-  expect(manifest.short_name).toBe("TOGB");
+  expect(manifest.name).toContain("TBG's");
+  expect(manifest.short_name).toBe("TBG's");
   expect(manifest.start_url).toBe("/");
   expect(manifest.icons?.[0]?.src).toBe("/icon.svg");
 });
@@ -397,10 +397,10 @@ test("homepage exposes complete canonical and social metadata", async ({
   expect(canonical).not.toBeNull();
   expect(new URL(canonical!).pathname).toBe("/");
 
-  await expect(page).toHaveTitle(/Web Developer in Gauteng/i);
+  await expect(page).toHaveTitle(/Web Developer in Hammanskraal/i);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
-    /websites and web apps for small teams in Gauteng/i,
+    /websites and web apps for small teams in Hammanskraal/i,
   );
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
     "content",
@@ -408,7 +408,7 @@ test("homepage exposes complete canonical and social metadata", async ({
   );
   await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
     "content",
-    "TOGB",
+    "TBG's",
   );
   await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute(
     "content",
@@ -514,9 +514,9 @@ test("structured data describes the studio and only approved reviews", async ({
       }
     | undefined;
   expect(service?.slogan).toBe("Websites built to earn their keep.");
-  expect(service?.telephone).toBe("+27717884230");
+  expect(service?.telephone).toBe("+27607804812");
   expect(service?.logo).toContain("/icon.svg");
-  expect(service?.contactPoint?.telephone).toBe("+27717884230");
+  expect(service?.contactPoint?.telephone).toBe("+27607804812");
   expect(service?.hasOfferCatalog?.itemListElement?.length).toBeGreaterThan(0);
 
   const reviews = service?.review ?? [];
@@ -694,12 +694,12 @@ test("desktop sidebar uses icon navigation and a distinct studio card", async ({
   const sidebar = page.locator("aside");
   await expect(sidebar).toBeVisible();
   await expect(
-    sidebar.getByRole("link", { name: /TOGB/ }),
+    sidebar.getByRole("link", { name: /TBG's/ }),
   ).toBeVisible();
   await expect(
     sidebar.getByText("Websites built to earn their keep."),
   ).toBeVisible();
-  await expect(sidebar.getByText("The Original Brand")).toBeVisible();
+  await expect(sidebar.getByText("The Brand Group")).toBeVisible();
 
   const nav = sidebar.getByRole("navigation", { name: "Primary" });
   await expect(nav.getByRole("link")).toHaveCount(5);
