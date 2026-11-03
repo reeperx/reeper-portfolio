@@ -21,35 +21,35 @@ const siteUrl = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || fallbackEmail;
 
 export const site = {
-  name: "TOGB",
-  wordmark: "TOGB",
-  brandLine: "The Original Brand",
-  legalName: "TOGB (The Original Brand)",
+  name: "TBG",
+  wordmark: "TBG",
+  brandLine: "",
+  legalName: "TBG",
   role: "Independent web developer",
   tagline: "Websites built to earn their keep.",
-  location: "Gauteng, South Africa",
-  shortLocation: "Gauteng",
+  location: "Hammanskraal, South Africa",
+  shortLocation: "Hammanskraal",
   timeZone: "Africa/Johannesburg",
   established: "2018",
   email,
   url: siteUrl,
   whatsapp: {
     label: "WhatsApp",
-    e164: "+27717884230",
-    href: "https://wa.me/27717884230",
+    e164: "+27607804812",
+    href: "https://wa.me/27607804812",
   },
   description:
-    "TOGB builds fast, considered websites and web apps for small teams in Gauteng, South Africa. Independent design, Next.js development, and deployment.",
+    "TBG builds fast, considered websites and web apps for small teams in Hammanskraal, South Africa. Independent design, Next.js development, and deployment.",
   hero: {
     image: "/images/togb-hero.webp",
   },
   portrait: {
     image: "/images/togb-portrait-anime.webp",
-    alt: "Anime-style portrait of the developer behind TOGB.",
+    alt: "Anime-style portrait of the developer behind TBG.",
   },
-  contentUpdated: "2026-10-29",
-  legalUpdated: "29 October 2026",
-  legalUpdatedIso: "2026-10-29",
+  contentUpdated: "2026-11-03",
+  legalUpdated: "3 November 2026",
+  legalUpdatedIso: "2026-11-03",
   availability: "Available for Q4 2026",
   availabilityNote: "Taking on two new projects this quarter.",
   socials: [
@@ -126,14 +126,14 @@ export type Faq = {
 
 export const faqs: Faq[] = [
   {
-    question: "What does TOGB build?",
+    question: "What does TBG build?",
     answer:
-      "TOGB builds launch sites, focused web apps, and rescues for small teams. Most projects use Next.js, React, and Tailwind CSS, with a CMS, payments, or integrations where they earn their place.",
+      "TBG builds launch sites, focused web apps, and rescues for small teams. Most projects use Next.js, React, and Tailwind CSS, with a CMS, payments, or integrations where they earn their place.",
   },
   {
-    question: "Where is TOGB based?",
+    question: "Where is TBG based?",
     answer:
-      "TOGB is based in Gauteng, South Africa, and works remotely with clients across South Africa and beyond. You work directly with the developer doing the work.",
+      "TBG is based in Hammanskraal, South Africa, and works remotely with clients across South Africa and beyond. You work directly with the developer doing the work.",
   },
   {
     question: "How long does a project take?",
@@ -146,9 +146,9 @@ export const faqs: Faq[] = [
       "Every project is scoped individually. After a short brief I send a fixed quote with the scope, timeline, and deliverables, so there are no hourly surprises. The quote is based on the work, not a template price.",
   },
   {
-    question: "Do you work with clients outside Gauteng?",
+    question: "Do you work with clients outside Hammanskraal?",
     answer:
-      "Yes. The studio is based in Gauteng and works remotely with teams across South Africa and internationally. Most communication happens over email, WhatsApp, or short video calls.",
+      "Yes. The studio is based in Hammanskraal and works remotely with teams across South Africa and internationally. Most communication happens over email, WhatsApp, or short video calls.",
   },
   {
     question: "What happens after launch?",

@@ -21,12 +21,12 @@ const socialUrls = site.socials
 
 const postalAddress = {
   "@type": "PostalAddress",
-  addressRegion: "Gauteng",
+  addressRegion: "Hammanskraal",
   addressCountry: "ZA",
 } as const;
 
 const areaServed = [
-  { "@type": "AdministrativeArea", name: "Gauteng" },
+  { "@type": "AdministrativeArea", name: "Hammanskraal" },
   { "@type": "Country", name: "South Africa" },
 ] as const;
 
@@ -250,7 +250,7 @@ export function buildReviewsPageSchema(reviews: PublicReview[]) {
     url: reviewsUrl,
     name: `Client reviews — ${site.name}`,
     description:
-      "Reviews from clients who have worked with TOGB, published only with permission.",
+      "Reviews from clients who have worked with TBG's, published only with permission.",
     inLanguage: "en-ZA",
     isPartOf: { "@id": websiteId },
     about: { "@id": serviceId },
@@ -297,7 +297,7 @@ export function buildWorkCollectionSchema() {
     url: absoluteUrl("/work"),
     name: `Selected work — ${site.name}`,
     description:
-      "A complete index of websites and web apps built by TOGB, an independent web developer in Gauteng.",
+      "A complete index of websites and web apps built by TBG's, an independent web developer in Hammanskraal.",
     inLanguage: "en-ZA",
     isPartOf: { "@id": websiteId },
     about: { "@id": serviceId },

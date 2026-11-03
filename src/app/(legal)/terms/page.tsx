@@ -7,7 +7,7 @@ import { openGraphImage, twitterImage } from "@/lib/seo";
 import { buildBreadcrumbSchema } from "@/lib/structured-data";
 
 const description =
-  "The terms that apply when you use TOGB’s portfolio, blog comments, client reviews, and project inquiry form.";
+  "The terms that apply when you use TBG portfolio, blog comments, client reviews, and project inquiry form.";
 
 const canonical = new URL("/terms", site.url).toString();
 
@@ -113,8 +113,8 @@ export default function TermsPage() {
           <p>
             <strong className="text-foreground">Reviews.</strong> Reviews are
             for current or past clients only. By submitting a review, you
-            confirm that you have worked with TOGB, that the review describes
-            your own honest experience, and that you consent to TOGB publishing
+            confirm that you have worked with TBG, that the review describes
+            your own honest experience, and that you consent to TBG publishing
             your name, optional role and company, optional rating, and review on
             this website and in related marketing for as long as the review
             remains published. Reviews are voluntary. I do not offer payment,
@@ -142,9 +142,9 @@ export default function TermsPage() {
           <p>
             <strong className="text-foreground">Your content.</strong> You
             retain ownership of the text you submit. By submitting a comment or
-            review, you grant TOGB a non-exclusive, worldwide, royalty-free
+            review, you grant TBG a non-exclusive, worldwide, royalty-free
             licence to host, display, reproduce, format, and share that content
-            on this website and TOGB’s related channels for as long as it is
+            on this website and TBG related channels for as long as it is
             published. The licence ends when the content is removed, except for
             reasonable backup, cache, and archival copies. You are responsible
             for the content you submit and for any claim arising from it.
