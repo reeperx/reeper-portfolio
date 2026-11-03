@@ -76,7 +76,7 @@ export default async function ReviewsPage() {
           </div>
           <div className="max-w-md lg:justify-self-end">
             <p className="text-sm leading-relaxed text-muted-foreground">
-              These are reviews from people who have actually worked with TBG&apos;s.
+              These are reviews from people who have actually worked with TBG.
               Every one is published only after the client confirms it and I
               check it against project records.
             </p>

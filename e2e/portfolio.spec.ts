@@ -122,7 +122,6 @@ test("social and contact links appear exactly once", async ({ page }, testInfo) 
     .poll(() => page.locator("body").innerText())
     .not.toContain("071 788 4230");
   await expect(legalLinks).toHaveCount(2);
-  await expect(footer.getByText(/The Brand Group/)).toBeVisible();
   await expect(
     legalLinks.filter({ hasText: "Privacy Policy" }),
   ).toHaveAttribute("href", "/privacy");
@@ -186,7 +185,7 @@ test("legal pages carry policy content and footer links", async ({ page }) => {
   await expect(
     page.getByRole("heading", { level: 1, name: "Privacy Policy" }),
   ).toBeVisible();
-  await expect(page.getByText("Last updated 29 October 2026")).toBeVisible();
+  await expect(page.getByText("Last updated 3 November 2026")).toBeVisible();
   await expect(
     page.getByRole("heading", { level: 2, name: "What I collect" }),
   ).toBeVisible();
@@ -348,7 +347,7 @@ test("sitemap lists work, blog, reviews, legal pages, and images", async ({
   expect(body).toContain("/privacy");
   expect(body).toContain("/terms");
   expect(body).toContain("ngobz-mobile.jpg");
-  expect(body).toContain("<lastmod>2026-10-29</lastmod>");
+  expect(body).toContain("<lastmod>2026-11-03</lastmod>");
   expect(body).not.toContain("/admin");
 });
 
@@ -381,8 +380,8 @@ test("robots and manifest expose crawl and install metadata", async ({
     start_url?: string;
     icons?: Array<{ src?: string }>;
   };
-  expect(manifest.name).toContain("TBG's");
-  expect(manifest.short_name).toBe("TBG's");
+  expect(manifest.name).toContain("TBG");
+  expect(manifest.short_name).toBe("TBG");
   expect(manifest.start_url).toBe("/");
   expect(manifest.icons?.[0]?.src).toBe("/icon.svg");
 });
@@ -408,7 +407,7 @@ test("homepage exposes complete canonical and social metadata", async ({
   );
   await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
     "content",
-    "TBG's",
+    "TBG",
   );
   await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute(
     "content",
@@ -694,12 +693,11 @@ test("desktop sidebar uses icon navigation and a distinct studio card", async ({
   const sidebar = page.locator("aside");
   await expect(sidebar).toBeVisible();
   await expect(
-    sidebar.getByRole("link", { name: /TBG's/ }),
+    sidebar.getByRole("link", { name: /TBG/ }),
   ).toBeVisible();
   await expect(
     sidebar.getByText("Websites built to earn their keep."),
   ).toBeVisible();
-  await expect(sidebar.getByText("The Brand Group")).toBeVisible();
 
   const nav = sidebar.getByRole("navigation", { name: "Primary" });
   await expect(nav.getByRole("link")).toHaveCount(5);

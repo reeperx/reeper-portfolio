@@ -21,10 +21,10 @@ const siteUrl = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || fallbackEmail;
 
 export const site = {
-  name: "TBG's",
-  wordmark: "TBG's",
-  brandLine: "The Brand Group",
-  legalName: "TBG's (The Brand Group)",
+  name: "TBG",
+  wordmark: "TBG",
+  brandLine: "",
+  legalName: "TBG",
   role: "Independent web developer",
   tagline: "Websites built to earn their keep.",
   location: "Hammanskraal, South Africa",
@@ -39,13 +39,13 @@ export const site = {
     href: "https://wa.me/27607804812",
   },
   description:
-    "TBG's builds fast, considered websites and web apps for small teams in Hammanskraal, South Africa. Independent design, Next.js development, and deployment.",
+    "TBG builds fast, considered websites and web apps for small teams in Hammanskraal, South Africa. Independent design, Next.js development, and deployment.",
   hero: {
     image: "/images/togb-hero.webp",
   },
   portrait: {
     image: "/images/togb-portrait-anime.webp",
-    alt: "Anime-style portrait of the developer behind TBG's.",
+    alt: "Anime-style portrait of the developer behind TBG.",
   },
   contentUpdated: "2026-11-03",
   legalUpdated: "3 November 2026",
@@ -126,14 +126,14 @@ export type Faq = {
 
 export const faqs: Faq[] = [
   {
-    question: "What does TBG's build?",
+    question: "What does TBG build?",
     answer:
-      "TBG's builds launch sites, focused web apps, and rescues for small teams. Most projects use Next.js, React, and Tailwind CSS, with a CMS, payments, or integrations where they earn their place.",
+      "TBG builds launch sites, focused web apps, and rescues for small teams. Most projects use Next.js, React, and Tailwind CSS, with a CMS, payments, or integrations where they earn their place.",
   },
   {
-    question: "Where is TBG's based?",
+    question: "Where is TBG based?",
     answer:
-      "TBG's is based in Hammanskraal, South Africa, and works remotely with clients across South Africa and beyond. You work directly with the developer doing the work.",
+      "TBG is based in Hammanskraal, South Africa, and works remotely with clients across South Africa and beyond. You work directly with the developer doing the work.",
   },
   {
     question: "How long does a project take?",
